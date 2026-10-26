@@ -336,31 +336,66 @@ else {
 /* ====================================================================
    STAFF
    ==================================================================== */
-function renderLogin(msg) {
+function renderLogin(msg, step) {
   closeLayer();
+  step = step || 'email';
   app.innerHTML = `
   <div class="center"><form class="card login" id="loginForm" autocomplete="on">
     ${brandHTML(false)}
     <h1>Designee Compliance Portal</h1>
     <p class="muted small" style="margin:0 0 18px">Illinois Shines · Staff sign-in</p>
-    <label class="f" for="lEmail">Work email</label>
-    <input class="in-f" id="lEmail" type="email" placeholder="name@getgoodpwr.com" required autocomplete="email" value="${esc(S.email)}">
-    <div style="height:12px"></div>
-    <label class="f" for="lPass">Staff passcode</label>
-    <input class="in-f" id="lPass" type="password" required autocomplete="current-password">
-    ${msg ? `<div class="err">${esc(msg)}</div>` : ''}
-    <button class="btn primary" style="width:100%;margin-top:18px;padding:12px" id="lBtn">Sign in</button>
+    ${step === 'email' ? `
+      <label class="f" for="lEmail">Work email</label>
+      <input class="in-f" id="lEmail" type="email" placeholder="name@getgoodpwr.com" required autocomplete="email" value="${esc(S.email)}">
+      ${msg ? `<div class="err">${esc(msg)}</div>` : ''}
+      <button class="btn primary" style="width:100%;margin-top:18px;padding:12px" id="lBtn">Email me a sign-in code</button>
+    ` : `
+      <div class="note" style="margin-bottom:14px">We sent a 6-digit code to <b>${esc(S.email)}</b>. It expires in 10 minutes.</div>
+      <label class="f" for="lCode">Sign-in code</label>
+      <input class="in-f" id="lCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" required
+        style="font-size:22px;letter-spacing:8px;text-align:center;font-family:Archivo">
+      ${msg ? `<div class="err">${esc(msg)}</div>` : ''}
+      <button class="btn primary" style="width:100%;margin-top:18px;padding:12px" id="lBtn">Sign in</button>
+      <div style="display:flex;justify-content:space-between;margin-top:12px">
+        <button type="button" class="btn ghost sm" id="chgBtn">Use a different email</button>
+        <button type="button" class="btn ghost sm" id="resBtn">Resend code</button>
+      </div>
+    `}
   </form></div>`;
-  $('#loginForm').onsubmit = async e => {
-    e.preventDefault();
-    const b = $('#lBtn'); b.disabled = true; b.innerHTML = '<span class="spin"></span>';
-    try {
-      const j = await api('staff.login', { email: $('#lEmail').value, passcode: $('#lPass').value });
-      S.session = j.session; S.email = j.email;
-      try { sessionStorage.setItem('ilsh_sess', JSON.stringify({ session: j.session, email: j.email })); } catch (e) {}
-      loadDash();
-    } catch (err) { renderLogin(err.message); }
-  };
+  const btnBusy = b => { b.disabled = true; b.innerHTML = '<span class="spin"></span>'; };
+  if (step === 'email') {
+    $('#lEmail').focus();
+    $('#loginForm').onsubmit = async e => {
+      e.preventDefault();
+      btnBusy($('#lBtn'));
+      S.email = $('#lEmail').value.trim().toLowerCase();
+      try { await api('staff.requestCode', { email: S.email }); renderLogin('', 'code'); }
+      catch (err) { renderLogin(err.message, 'email'); }
+    };
+  } else {
+    const codeIn = $('#lCode'); codeIn.focus();
+    codeIn.oninput = () => { codeIn.value = codeIn.value.replace(/\D/g, '').slice(0, 6); if (codeIn.value.length === 6) $('#loginForm').requestSubmit(); };
+    $('#chgBtn').onclick = () => renderLogin('', 'email');
+    const res = $('#resBtn');
+    let wait = 30; res.disabled = true; res.textContent = `Resend in ${wait}s`;
+    const timer = setInterval(() => { wait--; if (!document.body.contains(res)) return clearInterval(timer); if (wait <= 0) { clearInterval(timer); res.disabled = false; res.textContent = 'Resend code'; } else res.textContent = `Resend in ${wait}s`; }, 1000);
+    res.onclick = async () => {
+      res.disabled = true; res.textContent = 'Sending…';
+      try { await api('staff.requestCode', { email: S.email }); renderLogin('', 'code'); toast('New code sent'); }
+      catch (err) { renderLogin(err.message, 'code'); }
+    };
+    $('#loginForm').onsubmit = async e => {
+      e.preventDefault();
+      if (codeIn.value.length !== 6) return;
+      btnBusy($('#lBtn'));
+      try {
+        const j = await api('staff.login', { email: S.email, code: codeIn.value });
+        S.session = j.session; S.email = j.email;
+        try { sessionStorage.setItem('ilsh_sess', JSON.stringify({ session: j.session, email: j.email })); } catch (e) {}
+        loadDash();
+      } catch (err) { renderLogin(err.message, 'code'); }
+    };
+  }
 }
 function logout() {
   S.session = null; S.partners = [];
