@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOODPWR · Illinois Shines Designee Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#141413; --ink-2:#34332f; --paper:#f4efe2; --card:#fffdf8; --line:#e6dfcd; --line-2:#d3cab3;
+  --muted:#6b665a; --sun:#ffd21f; --sun-dark:#e0b400; --sun-soft:#fff6c7; --steel:#8a8d8f;
+  --ok:#1f7a4d; --ok-soft:#dcf1e4; --warn:#9a5b00; --warn-soft:#fdebc8;
+  --bad:#b42318; --bad-soft:#fde2df; --info:#2453a6; --info-soft:#e3ebfa; --mute:#5f5d57; --mute-soft:#ecebe6;
+  --r:12px; --shadow:0 1px 2px rgba(27,27,25,.06),0 6px 20px rgba(27,27,25,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--info)}
+h1,h2,h3{font-family:Archivo,Inter,sans-serif;margin:0;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 80px}
+
+/* top bar */
+.top{background:var(--ink);color:#fff;border-bottom:4px solid var(--sun)}
+.top .in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand img{height:34px;width:auto}
+.mark{font-family:Archivo;font-weight:900;font-size:20px;letter-spacing:.02em}
+.mark b{color:var(--sun)}
+.login .mark b{color:var(--ink);background:var(--sun);padding:0 4px;border-radius:3px}
+.brand .sub{font-size:12px;color:#d9d3c2;border-left:1px solid #4a4943;padding-left:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sp{flex:1}
+.top .who{font-size:12.5px;color:#c9c7bf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+
+/* buttons & inputs */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line-2);background:#fff;padding:9px 14px;border-radius:9px;cursor:pointer;font-weight:600;font-size:13.5px;white-space:nowrap;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#000}
+.btn.sun{background:var(--sun);border-color:var(--sun);color:var(--ink)}
+.btn.sun:hover{background:var(--sun-dark);border-color:var(--ink)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--mute-soft)}
+.btn.dark-ghost{background:transparent;border-color:#4a4943;color:#fff}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:12.5px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+label.f{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin:0 0 5px}
+.in-f,select.in-f,textarea.in-f{width:100%;border:1px solid var(--line-2);background:#fff;border-radius:9px;padding:9px 11px;outline:none;min-height:40px}
+.in-f:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(255,210,31,.45)}
+textarea.in-f{min-height:80px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;line-height:1.5}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.8}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-warn{background:var(--warn-soft);color:var(--warn)}
+.t-bad{background:var(--bad-soft);color:var(--bad)} .t-info{background:var(--info-soft);color:var(--info)}
+.t-mute{background:var(--mute-soft);color:var(--mute)}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.head-row h1{font-size:26px;font-weight:800}
+.deadlines{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.dl{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dl .lbl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.dl .date{font-family:Archivo;font-size:20px;font-weight:800}
+.dl{border-left:6px solid var(--sun)}
+.dl .days{font-family:Archivo;font-weight:900;font-size:30px;line-height:1;text-align:right}
+.dl .days small{display:block;font-family:Inter;font-size:11.5px;font-weight:600;color:var(--muted)}
+.dl.urgent .days{color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.stat{padding:12px 14px;cursor:pointer;transition:border-color .15s}
+.stat:hover{border-color:var(--ink)}
+.stat.on{border-color:var(--ink);box-shadow:inset 0 -4px 0 var(--sun)}
+.stat .n{font-family:Archivo;font-size:26px;font-weight:800;line-height:1.1}
+.stat .l{font-size:12px;color:var(--muted);font-weight:600}
+@media(max-width:900px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.deadlines{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar .search{flex:1;min-width:200px}
+.toolbar select{width:auto;min-width:170px}
+
+/* partner list */
+.list{overflow:hidden}
+.lrow{display:grid;grid-template-columns:minmax(180px,1.6fr) 96px repeat(4,minmax(86px,.75fr)) minmax(120px,1fr) 108px;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer}
+.lrow:hover{background:#fffaea}
+.lrow.lh{cursor:default;background:#141413;color:#f4efe2;border-top:0;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#d9d3c2}
+.lrow.lh:hover{background:#141413}
+.co{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.co-sub{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell-lbl{display:none}
+.due{color:var(--bad);font-weight:700}
+.empty{padding:48px 16px;text-align:center;color:var(--muted)}
+@media(max-width:900px){
+  .lrow.lh{display:none}
+  .lrow{grid-template-columns:1fr 1fr;gap:8px 12px}
+  .lrow .c-co{grid-column:1/-1}
+  .cell-lbl{display:block;font-size:11px;color:var(--muted);font-weight:600}
+}
+
+/* layer: drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(20,20,18,.42);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(580px,100%);background:var(--paper);z-index:41;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.18)}
+.dh{padding:18px 20px;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+.dh h2{font-size:21px;font-weight:800}
+.eyebrow{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.x{margin-left:auto;border:0;background:transparent;font-size:26px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px}
+.dbody{flex:1;overflow-y:auto;padding:16px 20px 24px}
+.df{padding:12px 20px;background:#fff;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:space-between}
+.sec{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:14px}
+.sec h3{font-size:14px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.item{padding:12px 0;border-top:1px dashed var(--line)}
+.item:first-of-type{border-top:0;padding-top:2px}
+.item-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+.item-name{font-weight:700;font-size:13.5px}
+.item-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.file-line{font-size:12.5px;margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.file-line a{word-break:break-all}
+.uplink{color:var(--info);cursor:pointer;font-weight:600}
+.act{font-size:12.5px;border-left:2px solid var(--line-2);padding:0 0 10px 12px;margin-left:4px}
+.act b{font-weight:600}
+.modal{position:fixed;z-index:41;top:50%;left:50%;transform:translate(-50%,-50%);width:min(680px,calc(100% - 32px));max-height:calc(100% - 40px);overflow:auto;background:var(--paper);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal .mh{padding:18px 20px;display:flex;align-items:center;background:#fff;border-bottom:1px solid var(--line)}
+.modal .mh h2{font-size:19px;font-weight:800}
+.modal .mb{padding:18px 20px}
+.modal .mf{padding:14px 20px;display:flex;justify-content:flex-end;gap:10px;background:#fff;border-top:1px solid var(--line)}
+.addrow{display:grid;grid-template-columns:1.2fr 1fr 1.2fr 1.3fr 32px;gap:8px;margin-bottom:8px;align-items:center}
+.addrow select.need{border-color:var(--warn);background:var(--warn-soft)}
+.modal.wide{width:min(900px,calc(100% - 32px))}
+.folderbox{border:1px solid var(--line-2);border-radius:10px;padding:12px;background:#fffbee}
+.folderbox.ok{border-color:#a9d9bd;background:var(--ok-soft)}
+.folderbox.warn{border-color:#f0cf8f;background:var(--warn-soft)}
+.path{font-size:12.5px;margin-top:6px;word-break:break-word}
+@media(max-width:560px){.addrow{grid-template-columns:1fr;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line-2);border-radius:10px;background:#fff;cursor:pointer;margin-bottom:8px}
+.opt input{margin-top:3px;accent-color:var(--ink)}
+.opt b{display:block}
+
+/* login */
+.center{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.login{width:min(420px,100%);padding:28px}
+.login .mark{color:var(--ink);font-size:26px}
+.login h1{font-size:20px;margin:14px 0 4px}
+.err{background:var(--bad-soft);color:var(--bad);padding:10px 12px;border-radius:9px;font-size:13px;font-weight:500;margin-top:12px}
+.note{background:var(--sun-soft);border:1px solid var(--sun);padding:12px 14px;border-radius:10px;font-size:13.5px}
+
+/* partner page */
+.pwrap{max-width:760px;margin:0 auto;padding:28px 16px 80px}
+.hero h1{font-size:28px;font-weight:900;line-height:1.15}
+.hero .co-name{font-size:15px;color:var(--muted);margin-top:6px}
+.progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:16px 0 6px}
+.progress i{display:block;height:100%;background:var(--sun);border-radius:99px;transition:width .4s}
+.pdl{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pdl .pill{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px}
+.pdl .pill b{font-family:Archivo}
+.step-card{padding:18px 20px;margin-top:16px}
+.step-card h2{font-size:17px;font-weight:800;display:flex;gap:10px;align-items:center}
+.num{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--sun);box-shadow:0 0 0 3px var(--sun-soft);display:inline-grid;place-items:center;font-family:Archivo;font-weight:900;font-size:14px;flex:none}
+.step-card.done .num{background:var(--ok);color:#fff}
+.step-card p{margin:8px 0 0}
+.step-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.drop{margin-top:12px;border:1.5px dashed var(--line-2);border-radius:10px;padding:14px;background:#fffbee;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.drop.has{border-color:var(--ok);background:var(--ok-soft)}
+.drop .fn{font-size:13px;font-weight:600;word-break:break-all}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:500;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:1px;accent-color:var(--ink);flex:none}
+.locked{margin-top:10px;font-size:13px;color:var(--ok);font-weight:600}
+.submit-bar{position:sticky;bottom:0;margin-top:22px;padding:14px 0;background:linear-gradient(to top,var(--paper) 70%,transparent)}
+.submit-bar .btn{width:100%;padding:14px;font-size:15px}
+.banner{padding:14px 16px;border-radius:12px;margin-top:16px;font-size:14px}
+.banner.ok{background:var(--ok-soft);color:#14532d}
+.banner.msg{background:var(--warn-soft);color:#5c3700}
+
+.chk{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.chk:first-child{border-top:0}
+.chk .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
+.chk .ic.ok{background:var(--ok-soft);color:var(--ok)} .chk .ic.bad{background:var(--bad-soft);color:var(--bad)}
+.chk .d{font-size:12.5px;color:var(--muted);word-break:break-word}
+.testtag{display:inline-block;background:var(--ink);color:var(--sun);font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+#toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:10px;font-size:13.5px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:calc(100% - 32px)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.bad{background:var(--bad)}
+.spin{width:18px;height:18px;border:2.5px solid var(--line-2);border-top-color:var(--ink);border-radius:50%;animation:sp .8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading{padding:80px 16px;text-align:center;color:var(--muted);display:flex;gap:10px;justify-content:center;align-items:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="toast"></div>
+
+<script>
+/* ====== CONNECT ====== */
+const API_URL  = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'; // Deploy > Web app > /exec URL
+const LOGO_URL = ''; // optional: link to the GOODPWR logo image (leave blank to show the wordmark)
+
+/* ====== state & utils ====== */
+const S = { session: null, email: '', partners: [], config: {}, folders: [], filter: 'active', q: '', sel: null, pp: null };
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const app = $('#app'), layer = $('#layer');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg, bad) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(t._h); t._h = setTimeout(() => t.className = '', bad ? 5000 : 3000);
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function todayStr() { return ymd(new Date()); }
+function yearAgo() { const d = new Date(); d.setFullYear(d.getFullYear() - 1); return ymd(d); }
+function fmtDate(s) { if (!s) return '—'; const v = String(s); if (v.length > 10) { const d = new Date(v); if (!isNaN(d)) return pad(d.getMonth()+1)+'/'+pad(d.getDate())+'/'+d.getFullYear(); } const p = v.slice(0,10).split('-'); return p.length === 3 ? `${p[1]}/${p[2]}/${p[0]}` : v; }
+function fmtWhen(s) { const d = new Date(s); return isNaN(d) ? s : d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+function daysUntil(s) { return Math.round((new Date(s + 'T00:00:00') - new Date(todayStr() + 'T00:00:00')) / 864e5); }
+function baseUrl() { return location.origin + location.pathname; }
+function isArch(p) { return String(p.archived).toUpperCase() === 'TRUE'; }
+function isTest(p) { return String(p.isTest).toUpperCase() === 'TRUE'; }
+
+function brandHTML(light) {
+  if (LOGO_URL) return `<img src="${esc(LOGO_URL)}" alt="GOODPWR">`;
+  return `<span class="mark" style="${light ? '' : 'color:var(--ink)'}">GOOD<b>PWR</b></span>`;
+}
+
+async function api(action, data = {}) {
+  if (!/^https:\/\//.test(API_URL)) throw new Error('The portal is not connected yet (API_URL is missing in index.html).');
+  const body = Object.assign({ action }, data);
+  if (action.indexOf('staff.') === 0 && S.session) body.session = S.session;
+  let res, j;
+  try { res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) }); }
+  catch (e) { throw new Error('Could not reach the server. Check your internet connection and try again.'); }
+  try { j = await res.json(); } catch (e) { throw new Error('Unexpected response from the server.'); }
+  if (!j.ok) {
+    if (j.error === 'SESSION_EXPIRED') { logout(); throw new Error('Your session expired. Please sign in again.'); }
+    throw new Error(j.error || 'Something went wrong.');
+  }
+  return j;
+}
+
+function readFile(file, maxMb) {
+  return new Promise((resolve, reject) => {
+    if (file.size > maxMb * 1024 * 1024) return reject(new Error(`${file.name} is larger than ${maxMb} MB.`));
+    const r = new FileReader();
+    r.onload = () => resolve({ name: file.name, type: file.type, data: String(r.result).split(',')[1] || '' });
+    r.onerror = () => reject(new Error('Could not read ' + file.name));
+    r.readAsDataURL(file);
+  });
+}
+
+/* ====== Drive folder matching (mirrors the server) ====== */
+const NAME_NOISE = ['llc','l l c','inc','incorporated','corp','corporation','co','company','ltd','the','pllc','lp'];
+function normName(s) {
+  let t = String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9 ]/g, ' ');
+  t = ' ' + t.replace(/\s+/g, ' ').trim() + ' ';
+  NAME_NOISE.forEach(w => { t = t.split(' ' + w + ' ').join(' '); });
+  return t.replace(/\s+/g, '');
+}
+function matchFolder(company) {
+  const n = normName(company); if (!n) return null;
+  let best = null, bestScore = 0;
+  S.folders.forEach(f => {
+    const fn = normName(f.name); if (!fn) return;
+    let score = 0;
+    if (fn === n) score = 100;
+    else if (fn.length >= 4 && n.length >= 4 && (n.indexOf(fn) === 0 || fn.indexOf(n) === 0)) score = 80 - Math.abs(fn.length - n.length);
+    else if (fn.length >= 5 && n.length >= 5 && (n.indexOf(fn) >= 0 || fn.indexOf(n) >= 0)) score = 50 - Math.abs(fn.length - n.length);
+    if (score > bestScore) { bestScore = score; best = f; }
+  });
+  return bestScore >= 30 ? best : null;
+}
+function isConfirmed(p) { return String(p.folderConfirmed).toUpperCase() === 'TRUE'; }
+function folderName(id) { const f = S.folders.find(x => x.id === id); return f ? f.name : ''; }
+function folderPath(p, choice) {
+  const name = choice === 'new' ? p.company + ' (new folder)' : folderName(choice);
+  return `Build Partners - All › <b>${esc(name)}</b> › Illinois Shines Designee`;
+}
+function folderOptions(selected, company) {
+  return `<option value="">Choose Drive folder…</option>
+    <option value="new" ${selected === 'new' ? 'selected' : ''}>+ Create new folder${company ? ' “' + esc(company) + '”' : ''}</option>
+    ${S.folders.map(f => `<option value="${esc(f.id)}" ${f.id === selected ? 'selected' : ''}>${esc(f.name)}</option>`).join('')}`;
+}
+
+/* ====== status logic ====== */
+const ITEMS = [
+  { k: 'pdf', short: 'Designee PDF', long: 'Completed Designee Registration Form (PDF)' },
+  { k: 'gs', short: 'Good Standing', long: 'IL Secretary of State Statement of Good Standing' },
+  { k: 'mes', short: 'MES / EEC', long: 'MES Compliance Plan or EEC Application' },
+  { k: 'training', short: 'Training', long: 'Required training modules' }
+];
+const OPT_LABEL = {
+  missing: 'Missing', received: 'Received – needs review', verified: 'Verified', rejected: 'Rejected – needs new copy', na: 'N/A – does not qualify'
+};
+const TRAIN_LABEL = { missing: 'Not done', received: 'Reported done – confirm', verified: 'Verified complete', rejected: 'Rejected' };
+
+function gsOk(p) { return !!p.gsDate && p.gsDate >= yearAgo(); }
+function evalP(p) {
+  const t = todayStr(), c = S.config;
+  const docs = p.pdfStatus === 'verified' && p.gsStatus === 'verified' && gsOk(p) && (p.mesStatus === 'verified' || p.mesStatus === 'na');
+  const tr = p.trainingStatus === 'verified';
+  const review = ITEMS.some(i => p[i.k + 'Status'] === 'received');
+  const regOver = !docs && c.regDeadline && t > c.regDeadline;
+  const trOver = !tr && c.trainingDeadline && t > c.trainingDeadline;
+  const fuDue = !!p.nextFollowUp && p.nextFollowUp <= t && !(docs && tr);
+  let overall, tone;
+  if (docs && tr) { overall = 'Compliant'; tone = 'ok'; }
+  else if (regOver || trOver) { overall = 'Overdue'; tone = 'bad'; }
+  else if (review) { overall = 'Needs review'; tone = 'info'; }
+  else if (docs) { overall = 'Docs done · training left'; tone = 'ok'; }
+  else { overall = 'Waiting on partner'; tone = 'warn'; }
+  return { docs, tr, review, regOver, trOver, fuDue, overall, tone };
+}
+function chip(text, tone) { return `<span class="chip t-${tone}">${esc(text)}</span>`; }
+function itemChip(p, k) {
+  const s = p[k + 'Status'] || 'missing';
+  if (k === 'gs' && p.gsDate && !gsOk(p) && s !== 'missing') return chip('Too old', 'bad');
+  const m = { missing: ['Missing', 'warn'], received: [k === 'training' ? 'Reported' : 'Review', 'info'], verified: ['Verified', 'ok'], rejected: ['Rejected', 'bad'], na: ['N/A', 'mute'] }[s] || ['—', 'mute'];
+  return chip(m[0], m[1]);
+}
+
+/* ====== boot ====== */
+const params = new URLSearchParams(location.search);
+if (params.get('t')) bootPartner(params.get('t'));
+else {
+  try { const s = JSON.parse(sessionStorage.getItem('ilsh_sess') || 'null'); if (s) { S.session = s.session; S.email = s.email; } } catch (e) {}
+  S.session ? loadDash() : renderLogin();
+}
+
+/* ====================================================================
+   STAFF
+   ==================================================================== */
+function renderLogin(msg) {
+  closeLayer();
+  app.innerHTML = `
+  <div class="center"><form class="card login" id="loginForm" autocomplete="on">
+    ${brandHTML(false)}
+    <h1>Designee Compliance Portal</h1>
+    <p class="muted small" style="margin:0 0 18px">Illinois Shines · Staff sign-in</p>
+    <label class="f" for="lEmail">Work email</label>
+    <input class="in-f" id="lEmail" type="email" placeholder="name@getgoodpwr.com" required autocomplete="email" value="${esc(S.email)}">
+    <div style="height:12px"></div>
+    <label class="f" for="lPass">Staff passcode</label>
+    <input class="in-f" id="lPass" type="password" required autocomplete="current-password">
+    ${msg ? `<div class="err">${esc(msg)}</div>` : ''}
+    <button class="btn primary" style="width:100%;margin-top:18px;padding:12px" id="lBtn">Sign in</button>
+  </form></div>`;
+  $('#loginForm').onsubmit = async e => {
+    e.preventDefault();
+    const b = $('#lBtn'); b.disabled = true; b.innerHTML = '<span class="spin"></span>';
+    try {
+      const j = await api('staff.login', { email: $('#lEmail').value, passcode: $('#lPass').value });
+      S.session = j.session; S.email = j.email;
+      try { sessionStorage.setItem('ilsh_sess', JSON.stringify({ session: j.session, email: j.email })); } catch (e) {}
+      loadDash();
+    } catch (err) { renderLogin(err.message); }
+  };
+}
+function logout() {
+  S.session = null; S.partners = [];
+  try { sessionStorage.removeItem('ilsh_sess'); sessionStorage.removeItem('ilsh_list'); } catch (e) {}
+  renderLogin();
+}
+
+async function loadDash(keepLayer) {
+  if (!S.partners.length) {
+    let cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem('ilsh_list') || 'null'); } catch (e) {}
+    if (cached && cached.config) {
+      S.partners = cached.partners; S.config = cached.config; S.folders = cached.folders || [];
+      renderDash();
+    } else app.innerHTML = `<div class="loading"><span class="spin"></span> Loading Build Partners…</div>`;
+  }
+  try {
+    const j = await api('staff.list');
+    S.partners = j.partners; S.config = j.config; S.folders = j.folders || [];
+    try { sessionStorage.setItem('ilsh_list', JSON.stringify({ partners: j.partners, config: j.config, folders: S.folders })); } catch (e) {}
+    const q = $('#q'), hadFocus = q && document.activeElement === q;
+    renderDash();
+    if (hadFocus) { const n = $('#q'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }
+    if (keepLayer && S.sel) renderDrawer();
+  } catch (e) {
+    if (S.session) app.innerHTML = `<div class="center"><div class="card login"><div class="err">${esc(e.message)}</div><button class="btn" style="margin-top:14px" onclick="loadDash()">Try again</button></div></div>`;
+  }
+}
+
+function counts() {
+  const act = S.partners.filter(p => !isArch(p) && !isTest(p));
+  const ev = act.map(p => evalP(p));
+  return {
+    active: act.length,
+    review: ev.filter(e => e.review).length,
+    missing: ev.filter(e => !e.docs).length,
+    docs: ev.filter(e => e.docs).length,
+    training: ev.filter(e => !e.tr).length,
+    followup: ev.filter(e => e.fuDue).length,
+    overdue: ev.filter(e => e.regOver || e.trOver).length,
+    compliant: ev.filter(e => e.docs && e.tr).length
+  };
+}
+
+function renderDash() {
+  const c = counts(), cfg = S.config;
+  const dReg = daysUntil(cfg.regDeadline), dTr = daysUntil(cfg.trainingDeadline);
+  const dl = (lbl, date, d) => `
+    <div class="card dl ${d <= 7 ? 'urgent' : ''}">
+      <div><div class="lbl">${lbl}</div><div class="date">${fmtDate(date)}</div></div>
+      <div class="days">${d < 0 ? 'Passed' : d}<small>${d < 0 ? Math.abs(d) + ' days ago' : d === 1 ? 'day left' : 'days left'}</small></div>
+    </div>`;
+  const st = (key, n, l) => `<div class="card stat ${S.filter === key ? 'on' : ''}" data-filter="${key}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  app.innerHTML = `
+  <div class="top"><div class="in">
+    <div class="brand">${brandHTML(true)}<span class="sub">Illinois Shines · Designee Compliance</span></div>
+    <div class="sp"></div>
+    <span class="who">${esc(S.email)}</span>
+    <button class="btn sm dark-ghost" id="outBtn">Sign out</button>
+  </div></div>
+  <main class="wrap">
+    <div class="head-row">
+      <div><h1>Build Partner Compliance</h1><div class="muted">Track Designee registration documents and training for every Build Partner.</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="testBtn">Test</button>
+        <button class="btn" id="setBtn">Deadlines</button>
+        <button class="btn" id="refBtn">Refresh</button>
+        <button class="btn sun" id="addBtn">+ Add Build Partner</button>
+      </div>
+    </div>
+    <div class="deadlines">${dl('Registration docs due', cfg.regDeadline, dReg)}${dl('Training due', cfg.trainingDeadline, dTr)}</div>
+    <div class="stats">
+      ${st('active', c.active, 'Build Partners')}
+      ${st('review', c.review, 'Needs review')}
+      ${st('missing', c.missing, 'Docs incomplete')}
+      ${st('training', c.training, 'Training pending')}
+      ${st('followup', c.followup, 'Follow-up due')}
+      ${st('compliant', c.compliant, 'Fully compliant')}
+    </div>
+    <div class="toolbar">
+      <input class="in-f search" id="q" placeholder="Search company, contact or email" value="${esc(S.q)}">
+      <select class="in-f" id="flt">
+        ${[['active','All active'],['review','Needs review'],['missing','Docs incomplete'],['training','Training pending'],['followup','Follow-up due'],['overdue','Overdue'],['compliant','Fully compliant'],['folder','Folder not confirmed'],['tests','Test runs'],['archived','Archived']]
+          .map(([v,l]) => `<option value="${v}" ${S.filter===v?'selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>
+    <div class="card list" id="list"></div>
+  </main>`;
+  $('#outBtn').onclick = logout;
+  $('#refBtn').onclick = () => loadDash(true);
+  $('#addBtn').onclick = openAdd;
+  $('#setBtn').onclick = openSettings;
+  $('#testBtn').onclick = openTest;
+  $('#q').oninput = e => { S.q = e.target.value; renderList(); };
+  $('#flt').onchange = e => { S.filter = e.target.value; renderDash(); };
+  $$('.stat').forEach(el => el.onclick = () => { S.filter = el.dataset.filter; renderDash(); });
+  renderList();
+}
+
+function filtered() {
+  const q = S.q.trim().toLowerCase();
+  return S.partners.filter(p => {
+    const arch = isArch(p);
+    if (S.filter === 'archived') { if (!arch) return false; }
+    else if (arch) return false;
+    const e = evalP(p);
+    if (S.filter === 'review' && !e.review) return false;
+    if (S.filter === 'missing' && e.docs) return false;
+    if (S.filter === 'training' && e.tr) return false;
+    if (S.filter === 'followup' && !e.fuDue) return false;
+    if (S.filter === 'overdue' && !(e.regOver || e.trOver)) return false;
+    if (S.filter === 'compliant' && !(e.docs && e.tr)) return false;
+    if (S.filter === 'folder' && isConfirmed(p)) return false;
+    if (S.filter === 'tests' && !isTest(p)) return false;
+    if (S.filter !== 'tests' && S.filter !== 'active' && isTest(p)) return false;
+    if (q && ![p.company, p.contact, p.email, p.id].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => {
+    const ea = evalP(a), eb = evalP(b);
+    const rank = e => (e.regOver || e.trOver) ? 0 : e.review ? 1 : e.fuDue ? 2 : (e.docs && e.tr) ? 4 : 3;
+    return (isTest(a) - isTest(b)) || rank(ea) - rank(eb) || String(a.company).localeCompare(String(b.company));
+  });
+}
+
+function renderList() {
+  const rows = filtered();
+  const list = $('#list');
+  if (!S.partners.length) {
+    list.innerHTML = `<div class="empty"><b>No Build Partners yet.</b><br>Click <b>+ Add Build Partner</b> to start tracking.</div>`;
+    return;
+  }
+  if (!rows.length) { list.innerHTML = `<div class="empty">No Build Partners match this view.</div>`; return; }
+  list.innerHTML = `
+    <div class="lrow lh"><div>Build Partner</div><div>Invited</div>${ITEMS.map(i => `<div>${i.short}</div>`).join('')}<div>Status</div><div>Next follow-up</div></div>
+    ${rows.map(p => {
+      const e = evalP(p);
+      return `<div class="lrow" data-id="${esc(p.id)}">
+        <div class="c-co"><div class="co">${esc(p.company)}${isTest(p) ? '<span class="testtag">TEST</span>' : ''}</div><div class="co-sub">${esc(p.contact || '')}${p.contact ? ' · ' : ''}${esc(p.email)}</div>${isConfirmed(p) || isTest(p) ? '' : '<div class="small" style="color:var(--warn);font-weight:600">Confirm Drive folder</div>'}</div>
+        <div><span class="cell-lbl">Invited</span>${p.invitedAt ? fmtDate(p.invitedAt) : `<span class="muted small">${p.source === 'Emailed separately' ? 'Emailed' : '—'}</span>`}</div>
+        ${ITEMS.map(i => `<div><span class="cell-lbl">${i.short}</span>${itemChip(p, i.k)}</div>`).join('')}
+        <div><span class="cell-lbl">Status</span>${chip(e.overall, e.tone)}</div>
+        <div><span class="cell-lbl">Next follow-up</span><span class="${e.fuDue ? 'due' : ''}">${p.nextFollowUp && !(e.docs && e.tr) ? fmtDate(p.nextFollowUp) : '—'}</span></div>
+      </div>`;
+    }).join('')}`;
+  $$('.lrow[data-id]', list).forEach(r => r.onclick = () => openDrawer(r.dataset.id));
+}
+
+function closeLayer() { layer.innerHTML = ''; S.sel = null; document.body.style.overflow = ''; }
+function bindClose() { $$('[data-close]', layer).forEach(el => el.onclick = closeLayer); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && layer.innerHTML) closeLayer(); });
+
+/* ---------- drawer ---------- */
+function openDrawer(id) { S.sel = id; renderDrawer(); loadActivity(id); }
+function getSel() { return S.partners.find(p => p.id === S.sel); }
+function saveListCache() { try { sessionStorage.setItem('ilsh_list', JSON.stringify({ partners: S.partners, config: S.config, folders: S.folders })); } catch (e) {} }
+function replacePartner(np) { const i = S.partners.findIndex(p => p.id === np.id); if (i >= 0) S.partners[i] = np; else S.partners.push(np); saveListCache(); }
+
+function itemBlock(p, i) {
+  const k = i.k, s = p[k + 'Status'] || 'missing';
+  const opts = (k === 'mes' ? ['missing','received','verified','rejected','na'] : ['missing','received','verified','rejected']);
+  const lab = k === 'training' ? TRAIN_LABEL : OPT_LABEL;
+  let extra = '';
+  if (k === 'gs') {
+    const ok = gsOk(p);
+    extra = `<div><label class="f">Date issued</label><input class="in-f" type="date" data-f="gsDate" value="${esc(p.gsDate)}">
+      <div class="small" style="margin-top:4px">${p.gsDate ? (ok ? '<span style="color:var(--ok)">Within 12 months ✓</span>' : '<span style="color:var(--bad)">Older than 12 months – needs a new statement</span>') : '<span class="muted">Must be within the past 12 months</span>'}</div></div>`;
+  } else if (k === 'training') {
+    extra = `<div><label class="f">Date completed</label><input class="in-f" type="date" data-f="trainingDate" value="${esc(p.trainingDate)}"></div>`;
+  } else extra = '<div></div>';
+  return `<div class="item">
+    <div class="item-top"><span class="item-name">${i.long}</span>${itemChip(p, k)}</div>
+    <div class="item-row">
+      <div><label class="f">Status</label><select class="in-f" data-f="${k}Status">${opts.map(o => `<option value="${o}" ${s===o?'selected':''}>${lab[o]}</option>`).join('')}</select></div>
+      ${extra}
+    </div>
+    <div class="file-line">
+      ${p[k + 'Url'] ? `<a href="${esc(p[k+'Url'])}" target="_blank" rel="noopener">📄 ${esc(p[k+'FileName'])}</a><span class="muted">${fmtDate(p[k+'At'])}</span>` : `<span class="muted">No file on record</span>`}
+      <label class="uplink">${p[k + 'Url'] ? 'Replace file' : 'Attach file'}<input type="file" class="hidden" data-up="${k}" accept="${k==='pdf'?'.pdf':'.pdf,.png,.jpg,.jpeg,.heic,.doc,.docx'}"></label>
+    </div>
+  </div>`;
+}
+
+function renderDrawer() {
+  const p = getSel(); if (!p) return closeLayer();
+  const e = evalP(p);
+  document.body.style.overflow = 'hidden';
+  layer.innerHTML = `
+  <div class="scrim" data-close></div>
+  <aside class="drawer" role="dialog" aria-label="${esc(p.company)}">
+    <div class="dh">
+      <div style="min-width:0">
+        <div class="eyebrow">${esc(p.id)}</div>
+        <h2>${esc(p.company)}</h2>
+        <div class="muted small">${esc(p.contact || 'No contact name')} · <a href="mailto:${esc(p.email)}">${esc(p.email)}</a>${p.phone ? ' · ' + esc(p.phone) : ''}</div>
+      </div>
+      <button class="x" data-close aria-label="Close">×</button>
+    </div>
+    <div class="dbody">
+      <div class="sec">
+        <h3>Overview ${chip(e.overall, e.tone)}</h3>
+        <div class="small muted">${p.invitedAt ? `Invite sent ${fmtDate(p.invitedAt)} · ${p.inviteCount || 1}× total` : (p.source === 'Emailed separately' ? 'Emailed outside the portal (tracking only)' : 'No invite sent yet')}${p.lastPartnerSubmitAt ? ` · Partner last uploaded ${fmtDate(p.lastPartnerSubmitAt)}` : ''}</div>
+        <div class="small" style="margin-top:6px">${folderLine(p)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn sm" id="copyBtn">Copy upload link</button>
+          <button class="btn sm" id="inviteBtn">${p.invitedAt ? 'Resend invite email' : 'Send invite email'}</button>
+          ${(p.folderUrl || p.bpFolderId) ? `<a class="btn sm" href="${esc(p.folderUrl || ('https://drive.google.com/drive/folders/' + p.bpFolderId))}" target="_blank" rel="noopener">Open Drive folder</a>` : ''}
+        </div>
+      </div>
+
+      ${isTest(p) ? `<div class="sec"><h3>Test run <span class="testtag">TEST</span></h3><div class="small muted">Uploads from this test go to the separate TEST folder – never Build Partners - All – and emails go only to ${esc(p.email)}.</div></div>` : folderSection(p)}
+      <div class="sec"><h3>Checklist</h3>${ITEMS.map(i => itemBlock(p, i)).join('')}</div>
+
+      <div class="sec">
+        <h3>Follow-up</h3>
+        <div class="grid2">
+          <div><label class="f">Last follow-up</label><input class="in-f" type="date" data-f="lastFollowUp" value="${esc(p.lastFollowUp)}"></div>
+          <div><label class="f">Next follow-up</label><input class="in-f" type="date" data-f="nextFollowUp" value="${esc(p.nextFollowUp)}"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <input class="in-f" id="fuNote" placeholder="What did you send or hear? (optional)" style="flex:1;min-width:180px">
+          <select class="in-f" id="fuDays" style="width:auto"><option value="3">Next in 3 days</option><option value="7" selected>Next in 7 days</option><option value="14">Next in 14 days</option></select>
+          <button class="btn sm" id="fuBtn">Log follow-up today</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>Message shown on their upload page</h3>
+        <textarea class="in-f" data-f="partnerMessage" placeholder="e.g. Your Good Standing statement is from 2024 – please upload one issued in the last 12 months.">${esc(p.partnerMessage)}</textarea>
+      </div>
+
+      <div class="sec">
+        <h3>Contact & internal notes</h3>
+        <div class="grid2">
+          <div><label class="f">Company</label><input class="in-f" data-f="company" value="${esc(p.company)}"></div>
+          <div><label class="f">Contact name</label><input class="in-f" data-f="contact" value="${esc(p.contact)}"></div>
+          <div><label class="f">Email</label><input class="in-f" type="email" data-f="email" value="${esc(p.email)}"></div>
+          <div><label class="f">Phone</label><input class="in-f" data-f="phone" value="${esc(p.phone)}"></div>
+        </div>
+        <div style="height:12px"></div>
+        <label class="f">Internal notes (staff only)</label>
+        <textarea class="in-f" data-f="notes">${esc(p.notes)}</textarea>
+      </div>
+
+      <div class="sec"><h3>Activity</h3><div id="act"><span class="spin"></span></div></div>
+    </div>
+    <div class="df">
+      <button class="btn ghost danger" id="archBtn">${isArch(p) ? 'Restore' : 'Archive'}</button>
+      <div style="display:flex;gap:8px"><button class="btn" data-close>Close</button><button class="btn primary" id="saveBtn">Save changes</button></div>
+    </div>
+  </aside>`;
+  bindClose();
+
+  if (isTest(p)) {
+    const ab = $('#archBtn'); ab.textContent = 'Delete test';
+    ab.onclick = async () => {
+      if (!confirm('Delete this test partner and its test uploads?')) return;
+      await busy(ab, async () => {
+        await api('staff.deleteTest', { id: p.id });
+        S.partners = S.partners.filter(x => x.id !== p.id); saveListCache();
+        closeLayer(); renderDash(); toast('Test deleted');
+      });
+    };
+  }
+  if ($('#fdSel')) $('#fdSel').onchange = e => { $('#fdPath').innerHTML = e.target.value ? folderPath(p, e.target.value) : '<span class="muted">Pick the folder from Build Partners - All</span>'; };
+  if ($('#fdBtn')) $('#fdBtn').onclick = async () => {
+    const choice = $('#fdSel').value;
+    if (!choice) return toast('Pick a Drive folder first.', true);
+    const name = choice === 'new' ? `a new folder “${p.company}”` : `“${folderName(choice)}”`;
+    if (!confirm(`Save ${p.company}'s Illinois Shines documents to ${name} in Build Partners - All?` + (ITEMS.some(i => p[i.k + 'FileId']) ? '\n\nFiles already uploaded will be moved there.' : ''))) return;
+    await busy($('#fdBtn'), async () => {
+      const j = await api('staff.confirmFolder', { id: p.id, folderChoice: choice });
+      replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id);
+      toast('Folder confirmed' + (j.moved ? ` · ${j.moved} file(s) moved` : '') + (j.failed ? ` · ${j.failed} could not be moved` : ''), j.failed > 0);
+    });
+  };
+
+  $('#saveBtn').onclick = async () => {
+    const fields = {};
+    $$('[data-f]', layer).forEach(el => fields[el.dataset.f] = el.value);
+    await busy($('#saveBtn'), async () => {
+      const j = await api('staff.update', { id: p.id, fields });
+      replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id); refreshStats();
+      toast('Saved');
+    });
+  };
+  if (!isTest(p)) $('#archBtn').onclick = async () => {
+    if (!isArch(p) && !confirm(`Archive ${p.company}? Their upload link will stop working.`)) return;
+    await busy($('#archBtn'), async () => {
+      const j = await api('staff.update', { id: p.id, fields: { archived: isArch(p) ? '' : 'TRUE' } });
+      replacePartner(j.partner); closeLayer(); renderDash();
+      toast(isArch(j.partner) ? 'Archived' : 'Restored');
+    });
+  };
+  $('#copyBtn').onclick = async () => {
+    const link = baseUrl() + '?t=' + p.token;
+    try { await navigator.clipboard.writeText(link); toast('Upload link copied'); }
+    catch (e) { prompt('Copy this upload link:', link); }
+  };
+  $('#inviteBtn').onclick = async () => {
+    if (!confirm(`Send the Illinois Shines invite email to ${p.email}?`)) return;
+    await busy($('#inviteBtn'), async () => {
+      const j = await api('staff.invite', { id: p.id, baseUrl: baseUrl() });
+      replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id);
+      toast('Invite sent to ' + p.email);
+    });
+  };
+  $('#fuBtn').onclick = async () => {
+    await busy($('#fuBtn'), async () => {
+      const j = await api('staff.followup', { id: p.id, note: $('#fuNote').value, days: $('#fuDays').value });
+      replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id); refreshStats();
+      toast('Follow-up logged');
+    });
+  };
+  $$('[data-up]', layer).forEach(inp => inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    const lbl = inp.parentElement; const old = lbl.firstChild.textContent;
+    lbl.firstChild.textContent = 'Uploading…';
+    try {
+      const file = await readFile(f, 10);
+      const j = await api('staff.upload', { id: p.id, item: inp.dataset.up, file });
+      replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id); refreshStats();
+      toast('File attached');
+    } catch (e) { lbl.firstChild.textContent = old; toast(e.message, true); }
+  });
+}
+
+function folderLine(p) {
+  if (isConfirmed(p)) return `Drive folder: <b>${esc(p.bpFolderId ? folderName(p.bpFolderId) || 'Saved folder' : p.company + ' (new)')}</b> ✓`;
+  return `<span style="color:var(--warn);font-weight:600">Drive folder not confirmed</span> <span class="muted">– uploads wait in a holding folder until you confirm</span>`;
+}
+
+function folderSection(p) {
+  const conf = isConfirmed(p);
+  const suggested = conf ? (p.bpFolderId || 'new') : (p.bpFolderId || (matchFolder(p.company) || {}).id || '');
+  return `<div class="sec">
+    <h3>Drive folder ${conf ? chip('Confirmed', 'ok') : chip('Needs confirmation', 'warn')}</h3>
+    <div class="folderbox ${conf ? 'ok' : 'warn'}">
+      <label class="f">Save ${esc(p.company)}'s documents to</label>
+      <select class="in-f" id="fdSel">${folderOptions(suggested, p.company)}</select>
+      <div class="path" id="fdPath">${suggested ? folderPath(p, suggested) : '<span class="muted">Pick the folder from Build Partners - All</span>'}</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <button class="btn sm ${conf ? '' : 'primary'}" id="fdBtn">${conf ? 'Change folder' : 'Confirm this folder'}</button>
+        <span class="small muted">${conf ? 'Already-uploaded files move to the new folder automatically.' : (!suggested ? 'No matching folder found.' : 'Suggested from the company name – please check it.')}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function refreshStats() {
+  // light re-render of the counters without losing the drawer
+  const c = counts();
+  const map = { active: c.active, review: c.review, missing: c.missing, training: c.training, followup: c.followup, compliant: c.compliant };
+  $$('.stat').forEach(el => { const n = map[el.dataset.filter]; if (n !== undefined) $('.n', el).textContent = n; });
+}
+
+async function loadActivity(id) {
+  try {
+    const j = await api('staff.activity', { id });
+    const box = $('#act'); if (!box || S.sel !== id) return;
+    box.innerHTML = j.activity.length ? j.activity.map(a => `
+      <div class="act"><b>${esc(a.action)}</b>${a.detail ? ' – ' + esc(a.detail) : ''}<div class="muted">${fmtWhen(a.at)} · ${esc(a.actor)}</div></div>`).join('')
+      : '<span class="muted small">No activity yet.</span>';
+  } catch (e) { const box = $('#act'); if (box) box.innerHTML = `<span class="muted small">${esc(e.message)}</span>`; }
+}
+
+async function busy(btn, fn) {
+  const html = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  try { await fn(); } catch (e) { toast(e.message, true); }
+  finally { if (document.body.contains(btn)) { btn.disabled = false; btn.innerHTML = html; } }
+}
+
+/* ---------- add modal ---------- */
+function addRowHTML() {
+  return `<div class="addrow">
+    <input class="in-f" placeholder="Company name *" data-a="company" list="bpFolderList">
+    <input class="in-f" placeholder="Contact name" data-a="contact">
+    <input class="in-f" type="email" placeholder="Email *" data-a="email">
+    <select class="in-f need" data-a="folder" title="Drive folder in Build Partners - All">${folderOptions('', '')}</select>
+    <button class="btn ghost sm" data-rm title="Remove row" aria-label="Remove row">×</button>
+  </div>`;
+}
+function openAdd() {
+  document.body.style.overflow = 'hidden';
+  layer.innerHTML = `
+  <div class="scrim" data-close></div>
+  <div class="modal wide" role="dialog" aria-label="Add Build Partners">
+    <div class="mh"><h2>Add Build Partners</h2><button class="x" data-close>×</button></div>
+    <div class="mb">
+      <datalist id="bpFolderList">${S.folders.map(f => `<option value="${esc(f.name)}">`).join('')}</datalist>
+      <p class="small muted" style="margin:0 0 10px">Type the company and the Drive folder is suggested from Build Partners - All. <b>Check each folder before adding</b> – that's where their documents will be saved.</p>
+      <div id="rows">${addRowHTML()}</div>
+      <button class="btn sm" id="moreBtn">+ Add another</button>
+      <div style="height:18px"></div>
+      <label class="opt"><input type="radio" name="mode" value="invite" checked><span><b>Send the invite email now</b><span class="muted small">For new Build Partners. They get the Illinois Shines steps plus their own upload link.</span></span></label>
+      <label class="opt"><input type="radio" name="mode" value="track"><span><b>Track only – already emailed</b><span class="muted small">For partners who already got the email. No email is sent; you can copy or send their upload link later.</span></span></label>
+    </div>
+    <div class="mf"><button class="btn" data-close>Cancel</button><button class="btn primary" id="addGo">Add</button></div>
+  </div>`;
+  bindClose();
+  const bindRows = () => {
+    $$('[data-rm]', layer).forEach(b => b.onclick = () => { if ($$('.addrow', layer).length > 1) b.parentElement.remove(); });
+    $$('.addrow', layer).forEach(r => {
+      const co = $('[data-a=company]', r), sel = $('[data-a=folder]', r);
+      if (co._bound) return; co._bound = true;
+      const suggest = () => {
+        if (sel.dataset.touched) return;
+        const m = matchFolder(co.value);
+        sel.innerHTML = folderOptions(m ? m.id : (co.value.trim() ? 'new' : ''), co.value.trim());
+        sel.classList.toggle('need', !sel.value);
+      };
+      co.addEventListener('input', suggest);
+      sel.onchange = () => { sel.dataset.touched = '1'; sel.classList.toggle('need', !sel.value); };
+    });
+  };
+  bindRows();
+  $('#moreBtn').onclick = () => { $('#rows').insertAdjacentHTML('beforeend', addRowHTML()); bindRows(); };
+  $('#addGo').onclick = async () => {
+    const partners = $$('.addrow', layer).map(r => ({
+      company: $('[data-a=company]', r).value.trim(), contact: $('[data-a=contact]', r).value.trim(),
+      email: $('[data-a=email]', r).value.trim(), folderChoice: $('[data-a=folder]', r).value
+    })).filter(x => x.company || x.email);
+    const bad = partners.find(x => !x.company || !x.email);
+    if (!partners.length || bad) return toast('Each row needs a company name and an email.', true);
+    const noFolder = partners.find(x => !x.folderChoice);
+    if (noFolder) return toast(`Choose a Drive folder for ${noFolder.company}.`, true);
+    const summary = partners.map(x => `• ${x.company}  →  ${x.folderChoice === 'new' ? 'NEW folder "' + x.company + '"' : folderName(x.folderChoice)}`).join('\n');
+    if (!confirm('Please confirm the Drive folders:\n\n' + summary + '\n\nDocuments will be saved in each folder\'s "Illinois Shines Designee" subfolder.')) return;
+    const sendInvite = $('input[name=mode]:checked', layer).value === 'invite';
+    await busy($('#addGo'), async () => {
+      const j = await api('staff.add', { partners, sendInvite, baseUrl: baseUrl() });
+      const r = j.results;
+      const added = r.filter(x => x.id).length, skipped = r.filter(x => x.skipped), failed = r.filter(x => x.inviteError);
+      closeLayer(); await loadDash();
+      let msg = `${added} added` + (sendInvite ? `, ${r.filter(x => x.invited).length} invited` : '');
+      if (skipped.length) msg += ` · ${skipped.length} skipped (already in portal)`;
+      if (failed.length) msg += ` · invite failed for ${failed.map(x => x.company).join(', ')}: ${failed[0].inviteError}`;
+      toast(msg, failed.length > 0);
+    });
+  };
+}
+
+/* ---------- test panel ---------- */
+function openTest() {
+  document.body.style.overflow = 'hidden';
+  const tests = S.partners.filter(isTest);
+  layer.innerHTML = `
+  <div class="scrim" data-close></div>
+  <div class="modal" role="dialog" aria-label="Test the portal">
+    <div class="mh"><h2>Test the portal</h2><button class="x" data-close>×</button></div>
+    <div class="mb">
+      <div class="sec">
+        <h3>1 · System check</h3>
+        <div class="small muted" style="margin-bottom:10px">Checks the database, the Build Partners - All folder and saving permission, email sending, and settings. Nothing is sent or changed.</div>
+        <button class="btn sm primary" id="stBtn">Run system check</button>
+        <div id="stOut" style="margin-top:10px"></div>
+      </div>
+      <div class="sec">
+        <h3>2 · Full test run</h3>
+        <div class="small muted" style="margin-bottom:10px">Creates a <b>TEST</b> Build Partner and emails the real invite to <b>${esc(S.email)}</b>. Open the link, upload any sample files and see them arrive here. Test uploads go to a separate TEST folder – never Build Partners - All – and compliance is not emailed.</div>
+        <button class="btn sm sun" id="tiBtn">Send me a test invite</button>
+        <div id="tiOut" style="margin-top:10px"></div>
+      </div>
+      ${tests.length ? `<div class="sec"><h3>Your test runs</h3>${tests.map(t => `
+        <div class="chk"><div style="flex:1;min-width:0"><b>${esc(t.company)}</b><div class="d">${esc(t.id)} · created ${fmtDate(t.createdAt)}</div></div>
+        <a class="btn sm" href="${esc(baseUrl() + '?t=' + t.token)}" target="_blank" rel="noopener">Open upload page</a>
+        <button class="btn sm" data-open="${esc(t.id)}">Review</button></div>`).join('')}</div>` : ''}
+    </div>
+    <div class="mf"><button class="btn" data-close>Close</button></div>
+  </div>`;
+  bindClose();
+  $$('[data-open]', layer).forEach(b => b.onclick = () => openDrawer(b.dataset.open));
+  $('#stBtn').onclick = () => busy($('#stBtn'), async () => {
+    $('#stOut').innerHTML = '<span class="small muted">Checking… this can take a few seconds.</span>';
+    const t0 = performance.now();
+    const j = await api('staff.selfTest');
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    const bad = j.checks.filter(c => !c.ok).length;
+    $('#stOut').innerHTML = `
+      <div class="note" style="margin-bottom:8px;${bad ? 'background:var(--bad-soft);border-color:#f3b4ad' : 'background:var(--ok-soft);border-color:#a9d9bd'}">
+        <b>${bad ? bad + ' item(s) need attention' : 'All checks passed'}</b> · round trip ${secs}s</div>
+      ${j.checks.map(c => `<div class="chk"><span class="ic ${c.ok ? 'ok' : 'bad'}">${c.ok ? '✓' : '!'}</span>
+        <div><b>${esc(c.name)}</b><div class="d">${esc(c.detail)}</div></div></div>`).join('')}`;
+  });
+  $('#tiBtn').onclick = () => busy($('#tiBtn'), async () => {
+    const j = await api('staff.testInvite', { baseUrl: baseUrl() });
+    replacePartner(j.partner); renderList(); refreshStats();
+    $('#tiOut').innerHTML = `<div class="note" style="background:var(--ok-soft);border-color:#a9d9bd">
+      <b>Test invite sent to ${esc(S.email)}.</b> Check your inbox for the email, or
+      <a href="${esc(j.link)}" target="_blank" rel="noopener">open the test upload page</a> now. Uploads will show under <b>${esc(j.partner.company)}</b> in the list.</div>`;
+  });
+}
+
+/* ---------- settings ---------- */
+function openSettings() {
+  document.body.style.overflow = 'hidden';
+  layer.innerHTML = `
+  <div class="scrim" data-close></div>
+  <div class="modal" role="dialog" aria-label="Deadlines">
+    <div class="mh"><h2>Deadlines</h2><button class="x" data-close>×</button></div>
+    <div class="mb">
+      <div class="grid2">
+        <div><label class="f">Registration documents due</label><input class="in-f" type="date" id="sReg" value="${esc(S.config.regDeadline)}"></div>
+        <div><label class="f">Training due</label><input class="in-f" type="date" id="sTr" value="${esc(S.config.trainingDeadline)}"></div>
+      </div>
+      <p class="muted small" style="margin:12px 0 0">These dates appear on the dashboard, in invite emails and on each partner's upload page.</p>
+    </div>
+    <div class="mf"><button class="btn" data-close>Cancel</button><button class="btn primary" id="sGo">Save</button></div>
+  </div>`;
+  bindClose();
+  $('#sGo').onclick = () => busy($('#sGo'), async () => {
+    const j = await api('staff.settings', { regDeadline: $('#sReg').value, trainingDeadline: $('#sTr').value });
+    S.config = j.config; closeLayer(); renderDash(); toast('Deadlines saved');
+  });
+}
+
+/* ====================================================================
+   BUILD PARTNER UPLOAD PAGE
+   ==================================================================== */
+async function bootPartner(t) {
+  app.innerHTML = `<div class="loading"><span class="spin"></span> Loading your page…</div>`;
+  try {
+    const j = await api('partner.get', { t });
+    S.pp = Object.assign(j, { t, files: {}, justSent: null });
+    renderPartner();
+  } catch (e) {
+    app.innerHTML = `<div class="center"><div class="card login">${brandHTML(false)}<h1>Link unavailable</h1><div class="err">${esc(e.message)}</div></div></div>`;
+  }
+}
+
+function pStatusLine(s, k) {
+  if (s === 'verified') return `<div class="locked">✓ Accepted by GoodPWR Solar</div>`;
+  if (s === 'received') return `<div class="small" style="margin-top:8px;color:var(--info);font-weight:600">Received – GoodPWR Solar is reviewing it. You can replace it below if needed.</div>`;
+  if (s === 'rejected') return `<div class="small" style="margin-top:8px;color:var(--bad);font-weight:600">Please upload a new copy${k === 'gs' ? ' (issued within the past 12 months)' : ''}.</div>`;
+  if (s === 'na') return `<div class="small" style="margin-top:8px;color:var(--mute);font-weight:600">Marked as not applicable to your business.</div>`;
+  return '';
+}
+
+function renderPartner() {
+  const { partner: p, config: cfg, info } = S.pp;
+  const done = ['pdf', 'gs', 'mes', 'training'].filter(k => ['verified', 'received', 'na'].includes(p[k + 'Status'])).length;
+  const drop = (k, accept) => {
+    const f = S.pp.files[k];
+    return `<div class="drop ${f ? 'has' : ''}">
+      <label class="btn sm">${f ? 'Change file' : 'Choose file'}<input type="file" class="hidden" data-pf="${k}" accept="${accept}"></label>
+      <span class="fn">${f ? esc(f.name) : `<span class="muted">No file selected · max ${info.maxMb} MB</span>`}</span>
+    </div>`;
+  };
+  const open = k => p[k + 'Status'] !== 'verified';
+  const isDone = k => ['verified', 'received', 'na'].includes(p[k + 'Status']);
+
+  app.innerHTML = `
+  <div class="top"><div class="in"><div class="brand">${brandHTML(true)}<span class="sub">Illinois Shines Designee Registration</span></div></div></div>
+  <main class="pwrap">
+    <section class="hero">
+      <h1>Illinois Shines Designee Registration</h1>
+      <div class="co-name">For <b>${esc(p.company)}</b>${p.contact ? ' · ' + esc(p.contact) : ''}</div>
+      <div class="progress"><i style="width:${done * 25}%"></i></div>
+      <div class="small muted">${done} of 4 items submitted</div>
+      <div class="pdl">
+        <div class="pill">Registration docs due <b>${fmtDate(cfg.regDeadline)}</b></div>
+        <div class="pill">Training due <b>${fmtDate(cfg.trainingDeadline)}</b></div>
+      </div>
+      ${S.pp.justSent ? `<div class="banner ok"><b>Thank you!</b> We received: ${esc(S.pp.justSent.join(', '))}.${done < 4 ? ' Please come back to this page to send the remaining items.' : ' GoodPWR Solar will review your documents.'}</div>` : ''}
+      ${p.partnerMessage ? `<div class="banner msg"><b>Message from GoodPWR Solar:</b> ${esc(p.partnerMessage)}</div>` : ''}
+    </section>
+
+    <div class="card step-card ${isDone('pdf') ? 'done' : ''}">
+      <div class="step-head"><h2><span class="num">1</span>Register online with Illinois Shines</h2></div>
+      <p>Sign the Illinois Shines Designee Registration Form online. Select <b>${esc(info.avName)}</b> (Approved Vendor ID <b>${esc(info.avId)}</b>) as your Approved Vendor.</p>
+      <p style="margin-top:12px"><a class="btn primary" href="${esc(info.officialUrl)}" target="_blank" rel="noopener">Open the Illinois Shines form ↗</a></p>
+    </div>
+
+    <div class="card step-card ${isDone('pdf') ? 'done' : ''}">
+      <h2><span class="num">2</span>Upload your completed Designee Registration Form</h2>
+      <p class="muted">The PDF copy of your completed form, showing your connection to ${esc(info.avName)}.</p>
+      ${pStatusLine(p.pdfStatus, 'pdf')}
+      ${open('pdf') ? drop('pdf', '.pdf') : ''}
+    </div>
+
+    <div class="card step-card ${isDone('gs') ? 'done' : ''}">
+      <h2><span class="num">3</span>Illinois Secretary of State Statement of Good Standing</h2>
+      <p class="muted">Must be issued within the past 12 months (on or after ${fmtDate(yearAgo())}).</p>
+      ${pStatusLine(p.gsStatus, 'gs')}
+      ${open('gs') ? `
+        <div style="margin-top:12px;max-width:260px"><label class="f" for="gsDate">Date issued</label><input class="in-f" type="date" id="gsDate" value="${esc(S.pp.gsDate || (p.gsStatus === 'rejected' ? '' : p.gsDate) || '')}" max="${todayStr()}"></div>
+        ${drop('gs', '.pdf,.png,.jpg,.jpeg,.heic')}` : ''}
+    </div>
+
+    <div class="card step-card ${isDone('training') ? 'done' : ''}">
+      <h2><span class="num">4</span>Complete all required training modules</h2>
+      <p class="muted">Training must be completed by ${fmtDate(cfg.trainingDeadline)}.</p>
+      ${pStatusLine(p.trainingStatus, 'training')}
+      ${open('training') ? `
+        <label class="check"><input type="checkbox" id="trDone" ${S.pp.trDone ? 'checked' : ''}><span>We have completed all required Illinois Shines training modules.</span></label>
+        <div style="margin-top:10px;max-width:260px"><label class="f" for="trDate">Date completed</label><input class="in-f" type="date" id="trDate" value="${esc(S.pp.trDate || p.trainingDate || '')}" max="${todayStr()}"></div>
+        <div class="small muted" style="margin-top:10px">Certificate or screenshot (optional)</div>
+        ${drop('training', '.pdf,.png,.jpg,.jpeg,.heic')}` : ''}
+    </div>
+
+    <div class="card step-card ${isDone('mes') ? 'done' : ''}">
+      <h2><span class="num">5</span>MES Compliance Plan or EEC Application</h2>
+      <p class="muted">Submit a Minimum Equity Standard (MES) Compliance Plan or an Equity Eligible Contractor (EEC) application, if your business qualifies.</p>
+      ${pStatusLine(p.mesStatus, 'mes')}
+      ${open('mes') && p.mesStatus !== 'na' ? `
+        ${drop('mes', '.pdf,.png,.jpg,.jpeg,.heic,.doc,.docx')}
+        <label class="check"><input type="checkbox" id="mesNA" ${S.pp.mesNA ? 'checked' : ''}><span>This does not apply – our business does not qualify for MES or EEC.</span></label>` : ''}
+    </div>
+
+    <div class="submit-bar"><button class="btn sun" id="pSubmit">Submit to GoodPWR Solar</button></div>
+    <p class="small muted" style="text-align:center">Questions? Email <a href="mailto:${esc(info.contact)}">${esc(info.contact)}</a></p>
+  </main>`;
+
+  // keep typed values when re-rendering
+  const keep = () => {
+    if ($('#gsDate')) S.pp.gsDate = $('#gsDate').value;
+    if ($('#trDone')) S.pp.trDone = $('#trDone').checked;
+    if ($('#trDate')) S.pp.trDate = $('#trDate').value;
+    if ($('#mesNA')) S.pp.mesNA = $('#mesNA').checked;
+  };
+  $$('[data-pf]').forEach(inp => inp.onchange = () => {
+    const f = inp.files[0]; if (!f) return;
+    if (f.size > info.maxMb * 1024 * 1024) { toast(`${f.name} is larger than ${info.maxMb} MB.`, true); return; }
+    if (inp.dataset.pf === 'pdf' && !/\.pdf$/i.test(f.name)) { toast('Please upload the form as a PDF.', true); return; }
+    keep(); S.pp.files[inp.dataset.pf] = f;
+    if (inp.dataset.pf === 'mes') S.pp.mesNA = false;
+    renderPartner();
+  });
+  if ($('#mesNA')) $('#mesNA').onchange = e => { keep(); if (e.target.checked) delete S.pp.files.mes; renderPartner(); };
+  ['#gsDate', '#trDate', '#trDone'].forEach(s => { if ($(s)) $(s).onchange = keep; });
+  $('#pSubmit').onclick = submitPartner;
+}
+
+async function submitPartner() {
+  const st = S.pp, info = st.info;
+  const gsDate = $('#gsDate') ? $('#gsDate').value : '';
+  const trainingDone = $('#trDone') ? $('#trDone').checked : false;
+  const trainingDate = $('#trDate') ? $('#trDate').value : '';
+  const mesNA = $('#mesNA') ? $('#mesNA').checked : false;
+  if (st.files.gs) {
+    if (!gsDate) return toast('Enter the date your Good Standing statement was issued.', true);
+    if (gsDate < yearAgo()) return toast('The Good Standing statement must be issued within the past 12 months.', true);
+  }
+  if (st.files.training && !trainingDone) return toast('Check the training box to confirm you completed all modules.', true);
+  const hasAny = Object.keys(st.files).length || mesNA || trainingDone;
+  if (!hasAny) return toast('Add at least one document or check a box before submitting.', true);
+
+  const btn = $('#pSubmit');
+  await busy(btn, async () => {
+    btn.innerHTML = '<span class="spin"></span>&nbsp; Uploading…';
+    const files = {};
+    for (const k of Object.keys(st.files)) files[k] = await readFile(st.files[k], info.maxMb);
+    const j = await api('partner.submit', { t: st.t, files, gsDate, mesNA, trainingDone, trainingDate });
+    S.pp.partner = j.partner; S.pp.files = {}; S.pp.justSent = j.received;
+    S.pp.gsDate = ''; S.pp.trDone = false; S.pp.trDate = ''; S.pp.mesNA = false;
+    renderPartner(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+</script>
+</body>
+</html>
