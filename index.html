@@ -185,6 +185,23 @@ textarea.in-f{min-height:80px;resize:vertical}
 .chk .ic.ok{background:var(--ok-soft);color:var(--ok)} .chk .ic.bad{background:var(--bad-soft);color:var(--bad)}
 .chk .d{font-size:12.5px;color:var(--muted);word-break:break-word}
 .testtag{display:inline-block;background:var(--ink);color:var(--sun);font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.next{background:var(--ink);color:#f4efe2;border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.next .nh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.next .nh h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--sun);margin:0}
+.next .big{font-family:Archivo;font-size:19px;font-weight:800;line-height:1.25;color:#fff}
+.next .why{font-size:13px;color:#d9d3c2;margin-top:4px}
+.next ul{margin:10px 0 0;padding:0;list-style:none}
+.next li{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;padding:5px 0;color:#f4efe2}
+.next li .b{width:18px;height:18px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11px;font-weight:800;margin-top:1px}
+.next li .b.m{background:var(--sun);color:var(--ink)} .next li .b.r{background:#9ec5ff;color:#0b2a5c} .next li .b.ok{background:#8fd3a9;color:#0d3b22}
+.next .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.next .btn{border-color:#4a4943;background:transparent;color:#fff}
+.next .btn:hover{border-color:#fff}
+.next .btn.sun{background:var(--sun);border-color:var(--sun);color:var(--ink)}
+.next .meta{font-size:12px;color:#b9b2a0;margin-top:12px;border-top:1px solid #34332f;padding-top:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.next .meta b{color:#f4efe2}
+.hint{font-size:12.5px;color:var(--muted);margin:-4px 0 10px}
+.emailprev{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;max-height:340px;overflow:auto}
 #toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:10px;font-size:13.5px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:calc(100% - 32px)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.bad{background:var(--bad)}
@@ -317,6 +334,56 @@ function evalP(p) {
   else { overall = 'Waiting on partner'; tone = 'warn'; }
   return { docs, tr, review, regOver, trOver, fuDue, overall, tone };
 }
+function missingList(p) {
+  const m = [];
+  const bad = k => ['missing', 'rejected', ''].includes(p[k + 'Status'] || '');
+  if (bad('pdf')) m.push(p.pdfStatus === 'rejected' ? 'New copy of the Designee PDF (last one rejected)' : 'Completed Designee Registration Form (PDF)');
+  const gsOld = p.gsDate && !gsOk(p);
+  if (bad('gs') || gsOld) m.push(gsOld || p.gsStatus === 'rejected' ? 'Newer Good Standing statement (must be within 12 months)' : 'Secretary of State Good Standing statement');
+  if (bad('training')) m.push('Training modules completed');
+  if (bad('mes')) m.push('MES plan / EEC application – or mark “does not apply”');
+  return m;
+}
+function reviewList(p) { return ITEMS.filter(i => p[i.k + 'Status'] === 'received').map(i => i.short); }
+
+function nextCard(p) {
+  const miss = missingList(p), rev = reviewList(p), e = evalP(p);
+  const needFolder = !isConfirmed(p) && !isTest(p);
+  let big, why, acts = '';
+  if (!miss.length && !rev.length && !needFolder) {
+    big = 'All set – nothing to do ✓'; why = `${esc(p.company)} has every document verified${e.tr ? ' and training confirmed' : ''}.`;
+  } else if (rev.length) {
+    big = `Review ${rev.length} new upload${rev.length > 1 ? 's' : ''}`;
+    why = 'Open each file below, then set it to <b>Verified</b> – or <b>Rejected</b> and tell them what to fix in the message box.';
+    acts += `<button class="btn sm sun" data-jump="checklist">Review uploads ↓</button>`;
+  } else if (needFolder) {
+    big = 'Confirm where their files are saved';
+    why = 'Check the suggested Drive folder below so uploads land in the right Build Partner folder.';
+    acts += `<button class="btn sm sun" data-jump="folder">Confirm Drive folder ↓</button>`;
+  } else {
+    big = e.fuDue ? `Time to follow up – ${miss.length} item${miss.length > 1 ? 's' : ''} missing` : `Waiting on ${miss.length} item${miss.length > 1 ? 's' : ''} from ${esc(p.company)}`;
+    why = e.fuDue ? 'Send a reminder – it lists exactly what is missing and includes their upload link.' : `Next follow-up is ${fmtDate(p.nextFollowUp)}. You can send a reminder anytime.`;
+  }
+  if (miss.length) acts += `<button class="btn sm ${rev.length || needFolder ? '' : 'sun'}" id="remBtn">Send reminder email</button><button class="btn sm" id="prevBtn">Preview reminder</button>`;
+  acts += `<button class="btn sm" id="copyBtn">Copy upload link</button>`;
+  const list = [
+    ...rev.map(t => `<li><span class="b r">!</span><span><b>Received:</b> ${esc(t)} – needs your review</span></li>`),
+    ...miss.map(t => `<li><span class="b m">•</span><span><b>Missing:</b> ${esc(t)}</span></li>`)
+  ];
+  return `<div class="next">
+    <div class="nh"><h3>What's next</h3>${chip(e.overall, e.tone)}</div>
+    <div class="big">${big}</div>
+    <div class="why">${why}</div>
+    ${list.length ? `<ul>${list.join('')}</ul>` : ''}
+    <div class="acts">${acts}</div>
+    <div class="meta">
+      <span>Last contact: <b>${p.lastFollowUp ? fmtDate(p.lastFollowUp) : (p.invitedAt ? 'Invite ' + fmtDate(p.invitedAt) : '—')}</b></span>
+      <span>Next follow-up: <b>${p.nextFollowUp && miss.length ? fmtDate(p.nextFollowUp) : '—'}</b></span>
+      <span>${folderLine(p).replace(/<[^>]+>/g, '')}</span>
+    </div>
+  </div>`;
+}
+
 function chip(text, tone) { return `<span class="chip t-${tone}">${esc(text)}</span>`; }
 function itemChip(p, k) {
   const s = p[k + 'Status'] || 'missing';
@@ -460,6 +527,7 @@ function renderDash() {
     <div class="head-row">
       <div><h1>Build Partner Compliance</h1><div class="muted">Track Designee registration documents and training for every Build Partner.</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${dueIds().length ? `<button class="btn primary" id="remAllBtn">Send reminders (${dueIds().length} due)</button>` : ''}
         <button class="btn" id="testBtn">Test</button>
         <button class="btn" id="setBtn">Deadlines</button>
         <button class="btn" id="refBtn">Refresh</button>
@@ -489,10 +557,27 @@ function renderDash() {
   $('#addBtn').onclick = openAdd;
   $('#setBtn').onclick = openSettings;
   $('#testBtn').onclick = openTest;
+  if ($('#remAllBtn')) $('#remAllBtn').onclick = remindAll;
   $('#q').oninput = e => { S.q = e.target.value; renderList(); };
   $('#flt').onchange = e => { S.filter = e.target.value; renderDash(); };
   $$('.stat').forEach(el => el.onclick = () => { S.filter = el.dataset.filter; renderDash(); });
   renderList();
+}
+
+function dueIds() {
+  return S.partners.filter(p => !isArch(p) && !isTest(p) && evalP(p).fuDue && missingList(p).length).map(p => p.id);
+}
+async function remindAll() {
+  const ids = dueIds();
+  const names = S.partners.filter(p => ids.includes(p.id)).map(p => '• ' + p.company + ' (' + missingList(p).length + ' missing)').join('\n');
+  if (!confirm(`Send a reminder email to ${ids.length} Build Partner(s) whose follow-up is due?\n\n${names}\n\nEach email lists only what that partner is missing, with their upload link.`)) return;
+  await busy($('#remAllBtn'), async () => {
+    const j = await api('staff.remindAll', { ids, baseUrl: baseUrl() });
+    j.results.filter(r => r.ok).forEach(r => replacePartner(r.partner));
+    const bad = j.results.filter(r => !r.ok);
+    renderDash();
+    toast(`${j.results.length - bad.length} reminder(s) sent` + (bad.length ? ` · ${bad.length} failed: ${bad[0].error}` : ''), bad.length > 0);
+  });
 }
 
 function filtered() {
@@ -594,22 +679,22 @@ function renderDrawer() {
       <button class="x" data-close aria-label="Close">×</button>
     </div>
     <div class="dbody">
+      ${nextCard(p)}
       <div class="sec">
-        <h3>Overview ${chip(e.overall, e.tone)}</h3>
-        <div class="small muted">${p.invitedAt ? `Invite sent ${fmtDate(p.invitedAt)} · ${p.inviteCount || 1}× total` : (p.source === 'Emailed separately' ? 'Emailed outside the portal (tracking only)' : 'No invite sent yet')}${p.lastPartnerSubmitAt ? ` · Partner last uploaded ${fmtDate(p.lastPartnerSubmitAt)}` : ''}</div>
-        <div class="small" style="margin-top:6px">${folderLine(p)}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-          <button class="btn sm" id="copyBtn">Copy upload link</button>
+        <h3>Invite</h3>
+        <div class="small muted">${p.invitedAt ? `Invite sent ${fmtDate(p.invitedAt)} · ${p.inviteCount || 1}× total` : (p.source === 'Emailed separately' ? 'Julia emailed them outside the portal – send the invite if they need their upload link' : 'No invite sent yet')}${p.lastPartnerSubmitAt ? ` · They last uploaded ${fmtDate(p.lastPartnerSubmitAt)}` : ''}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
           <button class="btn sm" id="inviteBtn">${p.invitedAt ? 'Resend invite email' : 'Send invite email'}</button>
-          ${(p.folderUrl || p.bpFolderId) ? `<a class="btn sm" href="${esc(p.folderUrl || ('https://drive.google.com/drive/folders/' + p.bpFolderId))}" target="_blank" rel="noopener">Open Drive folder</a>` : ''}
+          ${(p.folderUrl) ? `<a class="btn sm" href="${esc(p.folderUrl)}" target="_blank" rel="noopener">Open Drive folder</a>` : ''}
         </div>
       </div>
-
+      <div id="sec-folder"></div>
       ${isTest(p) ? `<div class="sec"><h3>Test run <span class="testtag">TEST</span></h3><div class="small muted">Uploads from this test go to the separate TEST folder – never Build Partners - All – and emails go only to ${esc(p.email)}.</div></div>` : folderSection(p)}
-      <div class="sec"><h3>Checklist</h3>${ITEMS.map(i => itemBlock(p, i)).join('')}</div>
+      <div class="sec" id="sec-checklist"><h3>Checklist</h3><div class="hint">Open each file, then set it to <b>Verified</b>. If something's wrong, choose <b>Rejected</b> and explain in “Message shown on their upload page”.</div>${ITEMS.map(i => itemBlock(p, i)).join('')}</div>
 
       <div class="sec">
-        <h3>Follow-up</h3>
+        <h3>Log a call or email</h3>
+        <div class="hint">Reminder emails log themselves. Use this when you called, texted or emailed them yourself.</div>
         <div class="grid2">
           <div><label class="f">Last follow-up</label><input class="in-f" type="date" data-f="lastFollowUp" value="${esc(p.lastFollowUp)}"></div>
           <div><label class="f">Next follow-up</label><input class="in-f" type="date" data-f="nextFollowUp" value="${esc(p.nextFollowUp)}"></div>
@@ -617,12 +702,13 @@ function renderDrawer() {
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <input class="in-f" id="fuNote" placeholder="What did you send or hear? (optional)" style="flex:1;min-width:180px">
           <select class="in-f" id="fuDays" style="width:auto"><option value="3">Next in 3 days</option><option value="7" selected>Next in 7 days</option><option value="14">Next in 14 days</option></select>
-          <button class="btn sm" id="fuBtn">Log follow-up today</button>
+          <button class="btn sm" id="fuBtn">Log it</button>
         </div>
       </div>
 
       <div class="sec">
         <h3>Message shown on their upload page</h3>
+        <div class="hint">They'll see this at the top of their page – and it's included when you send a reminder. Click Save changes after typing.</div>
         <textarea class="in-f" data-f="partnerMessage" placeholder="e.g. Your Good Standing statement is from 2024 – please upload one issued in the last 12 months.">${esc(p.partnerMessage)}</textarea>
       </div>
 
@@ -648,6 +734,22 @@ function renderDrawer() {
   </aside>`;
   bindClose();
 
+  $$('[data-jump]', layer).forEach(b => b.onclick = () => {
+    const el = $('#sec-' + b.dataset.jump) || $('#fdSel');
+    const target = b.dataset.jump === 'folder' ? ($('#fdSel') && $('#fdSel').closest('.sec')) : el;
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  const sendRem = async (btn, note) => {
+    await busy(btn, async () => {
+      const j = await api('staff.remind', { id: p.id, baseUrl: baseUrl(), note: note || '' });
+      replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id); refreshStats();
+      toast('Reminder sent to ' + p.email);
+    });
+  };
+  if ($('#remBtn')) $('#remBtn').onclick = () => {
+    if (confirm(`Email ${p.email} a reminder listing the ${missingList(p).length} missing item(s) with their upload link?`)) sendRem($('#remBtn'), p.partnerMessage);
+  };
+  if ($('#prevBtn')) $('#prevBtn').onclick = () => openReminderPreview(p);
   if (isTest(p)) {
     const ab = $('#archBtn'); ab.textContent = 'Delete test';
     ab.onclick = async () => {
@@ -835,6 +937,40 @@ function openAdd() {
       toast(msg, failed.length > 0);
     });
   };
+}
+
+/* ---------- reminder preview ---------- */
+async function openReminderPreview(p) {
+  const back = () => { renderDrawer(); loadActivity(p.id); };
+  layer.innerHTML = `<div class="scrim"></div><div class="modal wide" role="dialog" aria-label="Reminder preview">
+    <div class="mh"><h2>Reminder to ${esc(p.company)}</h2><button class="x" id="pvX">×</button></div>
+    <div class="mb">
+      <label class="f" for="pvNote">Add a personal note (optional)</label>
+      <textarea class="in-f" id="pvNote" placeholder="e.g. Thanks for sending the PDF! We just need your Good Standing statement now.">${esc(p.partnerMessage)}</textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;gap:10px;flex-wrap:wrap">
+        <div class="small muted" id="pvTo">Loading preview…</div>
+        <button class="btn sm" id="pvRefresh">Update preview</button>
+      </div>
+      <div class="emailprev" id="pvBody"><span class="spin"></span></div>
+    </div>
+    <div class="mf"><button class="btn" id="pvBack">Back</button><button class="btn sun" id="pvSend">Send reminder</button></div>
+  </div>`;
+  $('#pvX').onclick = back; $('#pvBack').onclick = back;
+  const load = async () => {
+    try {
+      const j = await api('staff.remind', { id: p.id, baseUrl: baseUrl(), note: $('#pvNote').value, preview: true });
+      $('#pvTo').innerHTML = `To <b>${esc(j.preview.to)}</b> · ${esc(j.preview.subject)}`;
+      $('#pvBody').innerHTML = j.preview.html;
+      $$('#pvBody a').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+    } catch (e) { $('#pvBody').innerHTML = `<div class="err">${esc(e.message)}</div>`; $('#pvSend').disabled = true; }
+  };
+  $('#pvRefresh').onclick = load;
+  $('#pvSend').onclick = () => busy($('#pvSend'), async () => {
+    const j = await api('staff.remind', { id: p.id, baseUrl: baseUrl(), note: $('#pvNote').value });
+    replacePartner(j.partner); renderList(); refreshStats(); back();
+    toast('Reminder sent to ' + p.email);
+  });
+  load();
 }
 
 /* ---------- test panel ---------- */
