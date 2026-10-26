@@ -531,7 +531,7 @@ function renderDash() {
         <button class="btn" id="testBtn">Test</button>
         <button class="btn" id="setBtn">Deadlines</button>
         <button class="btn" id="refBtn">Refresh</button>
-        <button class="btn sun" id="addBtn">+ Add Build Partner</button>
+        <button class="btn sun" id="addBtn">+ New Designee Request</button>
       </div>
     </div>
     <div class="deadlines">${dl('Registration docs due', cfg.regDeadline, dReg)}${dl('Training due', cfg.trainingDeadline, dTr)}</div>
@@ -609,7 +609,7 @@ function renderList() {
   const rows = filtered();
   const list = $('#list');
   if (!S.partners.length) {
-    list.innerHTML = `<div class="empty"><b>No Build Partners yet.</b><br>Click <b>+ Add Build Partner</b> to start tracking.</div>`;
+    list.innerHTML = `<div class="empty"><b>No Build Partners yet.</b><br>Click <b>+ New Designee Request</b> to send your first one.</div>`;
     return;
   }
   if (!rows.length) { list.innerHTML = `<div class="empty">No Build Partners match this view.</div>`; return; }
@@ -883,18 +883,18 @@ function openAdd() {
   document.body.style.overflow = 'hidden';
   layer.innerHTML = `
   <div class="scrim" data-close></div>
-  <div class="modal wide" role="dialog" aria-label="Add Build Partners">
-    <div class="mh"><h2>Add Build Partners</h2><button class="x" data-close>×</button></div>
+  <div class="modal wide" role="dialog" aria-label="New Designee Request">
+    <div class="mh"><h2>New Designee Request</h2><button class="x" data-close>×</button></div>
     <div class="mb">
       <datalist id="bpFolderList">${S.folders.map(f => `<option value="${esc(f.name)}">`).join('')}</datalist>
       <p class="small muted" style="margin:0 0 10px">Type the company and the Drive folder is suggested from Build Partners - All. <b>Check each folder before adding</b> – that's where their documents will be saved.</p>
       <div id="rows">${addRowHTML()}</div>
       <button class="btn sm" id="moreBtn">+ Add another</button>
       <div style="height:18px"></div>
-      <label class="opt"><input type="radio" name="mode" value="invite" checked><span><b>Send the invite email now</b><span class="muted small">For new Build Partners. They get the Illinois Shines steps plus their own upload link.</span></span></label>
+      <label class="opt"><input type="radio" name="mode" value="invite" checked><span><b>Send request email now</b><span class="muted small">For new Build Partners. They get the Illinois Shines steps plus their own upload link.</span></span></label>
       <label class="opt"><input type="radio" name="mode" value="track"><span><b>Track only – already emailed</b><span class="muted small">For partners who already got the email. No email is sent; you can copy or send their upload link later.</span></span></label>
     </div>
-    <div class="mf"><button class="btn" data-close>Cancel</button><button class="btn primary" id="addGo">Add</button></div>
+    <div class="mf"><button class="btn" data-close>Cancel</button><button class="btn primary" id="addGo">Create request</button></div>
   </div>`;
   bindClose();
   const bindRows = () => {
@@ -924,14 +924,14 @@ function openAdd() {
     const noFolder = partners.find(x => !x.folderChoice);
     if (noFolder) return toast(`Choose a Drive folder for ${noFolder.company}.`, true);
     const summary = partners.map(x => `• ${x.company}  →  ${x.folderChoice === 'new' ? 'NEW folder "' + x.company + '"' : folderName(x.folderChoice)}`).join('\n');
-    if (!confirm('Please confirm the Drive folders:\n\n' + summary + '\n\nDocuments will be saved in each folder\'s "Illinois Shines Designee" subfolder.')) return;
+    if (!confirm('Create Designee request(s)? Please confirm the Drive folders:\n\n' + summary + '\n\nDocuments will be saved in each folder\'s "Illinois Shines Designee" subfolder.')) return;
     const sendInvite = $('input[name=mode]:checked', layer).value === 'invite';
     await busy($('#addGo'), async () => {
       const j = await api('staff.add', { partners, sendInvite, baseUrl: baseUrl() });
       const r = j.results;
       const added = r.filter(x => x.id).length, skipped = r.filter(x => x.skipped), failed = r.filter(x => x.inviteError);
       closeLayer(); await loadDash();
-      let msg = `${added} added` + (sendInvite ? `, ${r.filter(x => x.invited).length} invited` : '');
+      let msg = `${added} request(s) created` + (sendInvite ? `, ${r.filter(x => x.invited).length} emailed` : '');
       if (skipped.length) msg += ` · ${skipped.length} skipped (already in portal)`;
       if (failed.length) msg += ` · invite failed for ${failed.map(x => x.company).join(', ')}: ${failed[0].inviteError}`;
       toast(msg, failed.length > 0);
