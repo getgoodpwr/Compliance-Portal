@@ -811,7 +811,8 @@ function renderDrawer() {
     await busy($('#saveBtn'), async () => {
       const j = await api('staff.update', { id: p.id, fields, baseUrl: baseUrl() });
       replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id); refreshStats();
-      if (j.notified) toast('Saved · ' + p.email + ' was emailed what to fix');
+      if (j.becameCompliant) toast('🎉 ' + p.company + ' is Fully compliant' + (j.complianceNotified ? ' · Compliance was notified' : ''));
+      else if (j.notified) toast('Saved · ' + p.email + ' was emailed what to fix');
       else if (j.notifyError) toast('Saved, but the rejection email failed: ' + j.notifyError, true);
       else toast('Saved');
     });
