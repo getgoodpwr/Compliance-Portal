@@ -88,7 +88,7 @@ textarea.in-f{min-height:80px;resize:vertical}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
 .head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
 .head-row h1{font-size:26px;font-weight:800}
-.deadlines{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.deadlines{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
 .dl{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .dl .lbl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .dl .date{font-family:Archivo,Inter,system-ui,sans-serif;font-size:20px;font-weight:800}
@@ -111,7 +111,7 @@ textarea.in-f{min-height:80px;resize:vertical}
 
 /* partner list */
 .list{overflow:hidden}
-.lrow{display:grid;grid-template-columns:minmax(180px,1.6fr) 96px repeat(4,minmax(86px,.75fr)) minmax(120px,1fr) 108px;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer}
+.lrow{display:grid;grid-template-columns:minmax(180px,1.6fr) 96px repeat(5,minmax(80px,.7fr)) minmax(120px,1fr) 108px;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer}
 .lrow:hover{background:#fffaea}
 .lrow.lh{cursor:default;background:#2B2824;color:#f4efe2;border-top:0;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#d9d3c2}
 .lrow.lh:hover{background:#2B2824}
@@ -333,6 +333,7 @@ function folderOptions(selected, company) {
 
 /* ====== status logic ====== */
 const ITEMS = [
+  { k: 'reg', short: 'IL Registration', long: 'Illinois Shines online registration', nofile: true },
   { k: 'pdf', short: 'Designee PDF', long: 'Completed Designee Registration Form (PDF)' },
   { k: 'gs', short: 'Good Standing', long: 'IL Secretary of State Statement of Good Standing' },
   { k: 'mes', short: 'MES / EEC', long: 'MES Compliance Plan or EEC Application' },
@@ -341,19 +342,20 @@ const ITEMS = [
 const OPT_LABEL = {
   missing: 'Missing', received: 'Received – needs review', verified: 'Verified', rejected: 'Rejected – needs new copy', na: 'N/A – does not qualify'
 };
+const REG_LABEL = { missing: 'Not confirmed', received: 'Partner confirmed – check', verified: 'Verified', rejected: 'Rejected – could not confirm' };
 const TRAIN_LABEL = { missing: 'Not done', received: 'Reported done – confirm', verified: 'Verified complete', rejected: 'Rejected' };
 
 function gsOk(p) { return !!p.gsDate && p.gsDate >= yearAgo(); }
 function evalP(p) {
   const t = todayStr(), c = S.config;
-  const docs = p.pdfStatus === 'verified' && p.gsStatus === 'verified' && gsOk(p) && (p.mesStatus === 'verified' || p.mesStatus === 'na');
+  const docs = p.regStatus === 'verified' && p.pdfStatus === 'verified' && p.gsStatus === 'verified' && gsOk(p) && (p.mesStatus === 'verified' || p.mesStatus === 'na');
   const tr = p.trainingStatus === 'verified';
   const review = ITEMS.some(i => p[i.k + 'Status'] === 'received');
   const regOver = !docs && c.regDeadline && t > c.regDeadline;
   const trOver = !tr && c.trainingDeadline && t > c.trainingDeadline;
   const fuDue = !!p.nextFollowUp && p.nextFollowUp <= t && !(docs && tr);
   let overall, tone;
-  if (docs && tr) { overall = 'Compliant'; tone = 'ok'; }
+  if (docs && tr) { overall = 'Fully compliant'; tone = 'ok'; }
   else if (regOver || trOver) { overall = 'Overdue'; tone = 'bad'; }
   else if (review) { overall = 'Needs review'; tone = 'info'; }
   else if (docs) { overall = 'Docs done · training left'; tone = 'ok'; }
@@ -363,6 +365,7 @@ function evalP(p) {
 function missingList(p) {
   const m = [];
   const bad = k => ['missing', 'rejected', ''].includes(p[k + 'Status'] || '');
+  if (bad('reg')) m.push(p.regStatus === 'rejected' ? 'Illinois Shines online registration (could not confirm)' : 'Illinois Shines online registration (select GOODPWR LLC, ID 2167)');
   if (bad('pdf')) m.push(p.pdfStatus === 'rejected' ? 'New copy of the Designee PDF (last one rejected)' : 'Completed Designee Registration Form (PDF)');
   const gsOld = p.gsDate && !gsOk(p);
   if (bad('gs') || gsOld) m.push(gsOld || p.gsStatus === 'rejected' ? 'Newer Good Standing statement (must be within 12 months)' : 'Secretary of State Good Standing statement');
@@ -414,7 +417,7 @@ function chip(text, tone) { return `<span class="chip t-${tone}">${esc(text)}</s
 function itemChip(p, k) {
   const s = p[k + 'Status'] || 'missing';
   if (k === 'gs' && p.gsDate && !gsOk(p) && s !== 'missing') return chip('Too old', 'bad');
-  const m = { missing: ['Missing', 'warn'], received: [k === 'training' ? 'Reported' : 'Review', 'info'], verified: ['Verified', 'ok'], rejected: ['Rejected', 'bad'], na: ['N/A', 'mute'] }[s] || ['—', 'mute'];
+  const m = { missing: ['Missing', 'warn'], received: [k === 'training' || k === 'reg' ? 'Confirmed' : 'Review', 'info'], verified: ['Verified', 'ok'], rejected: ['Rejected', 'bad'], na: ['N/A', 'mute'] }[s] || ['—', 'mute'];
   return chip(m[0], m[1]);
 }
 
@@ -535,7 +538,7 @@ function counts() {
 
 function renderDash() {
   const c = counts(), cfg = S.config;
-  const dReg = daysUntil(cfg.regDeadline), dTr = daysUntil(cfg.trainingDeadline);
+  const dReg = daysUntil(cfg.regDeadline), dTr = daysUntil(cfg.trainingDeadline), dSt = daysUntil(cfg.stateDeadline || cfg.regDeadline);
   const dl = (lbl, date, d) => `
     <div class="card dl ${d <= 7 ? 'urgent' : ''}">
       <div><div class="lbl">${lbl}</div><div class="date">${fmtDate(date)}</div></div>
@@ -560,7 +563,7 @@ function renderDash() {
         <button class="btn sun" id="addBtn">+ New Designee Request</button>
       </div>
     </div>
-    <div class="deadlines">${dl('Registration docs due', cfg.regDeadline, dReg)}${dl('Training due', cfg.trainingDeadline, dTr)}</div>
+    <div class="deadlines">${dl('Submit to GoodPWR by', cfg.regDeadline, dReg)}${dl('Illinois Shines deadline', cfg.stateDeadline || cfg.regDeadline, dSt)}${dl('Training due', cfg.trainingDeadline, dTr)}</div>
     <div class="stats">
       ${st('active', c.active, 'Build Partners')}
       ${st('review', c.review, 'Needs review')}
@@ -667,12 +670,14 @@ function replacePartner(np) { const i = S.partners.findIndex(p => p.id === np.id
 function itemBlock(p, i) {
   const k = i.k, s = p[k + 'Status'] || 'missing';
   const opts = (k === 'mes' ? ['missing','received','verified','rejected','na'] : ['missing','received','verified','rejected']);
-  const lab = k === 'training' ? TRAIN_LABEL : OPT_LABEL;
+  const lab = k === 'training' ? TRAIN_LABEL : k === 'reg' ? REG_LABEL : OPT_LABEL;
   let extra = '';
   if (k === 'gs') {
     const ok = gsOk(p);
     extra = `<div><label class="f">Date issued</label><input class="in-f" type="date" data-f="gsDate" value="${esc(p.gsDate)}">
       <div class="small" style="margin-top:4px">${p.gsDate ? (ok ? '<span style="color:var(--ok)">Within 12 months ✓</span>' : '<span style="color:var(--bad)">Older than 12 months – needs a new statement</span>') : '<span class="muted">Must be within the past 12 months</span>'}</div></div>`;
+  } else if (k === 'reg') {
+    extra = `<div class="small muted" style="align-self:end;padding-bottom:6px">Check that the Designee PDF shows <b>GOODPWR LLC (ID 2167)</b> as Approved Vendor${p.regAt ? ` · confirmed by partner ${fmtDate(p.regAt)}` : ''}</div>`;
   } else if (k === 'training') {
     extra = `<div><label class="f">Date completed</label><input class="in-f" type="date" data-f="trainingDate" value="${esc(p.trainingDate)}"></div>`;
   } else extra = '<div></div>';
@@ -682,10 +687,10 @@ function itemBlock(p, i) {
       <div><label class="f">Status</label><select class="in-f" data-f="${k}Status">${opts.map(o => `<option value="${o}" ${s===o?'selected':''}>${lab[o]}</option>`).join('')}</select></div>
       ${extra}
     </div>
-    <div class="file-line">
+    ${i.nofile ? '' : `<div class="file-line">
       ${p[k + 'Url'] ? `<a href="${esc(p[k+'Url'])}" target="_blank" rel="noopener">📄 ${esc(p[k+'FileName'])}</a><span class="muted">${fmtDate(p[k+'At'])}</span>` : `<span class="muted">No file on record</span>`}
       <label class="uplink">${p[k + 'Url'] ? 'Replace file' : 'Attach file'}<input type="file" class="hidden" data-up="${k}" accept="${k==='pdf'?'.pdf':'.pdf,.png,.jpg,.jpeg,.heic,.doc,.docx'}"></label>
-    </div>
+    </div>`}
   </div>`;
 }
 
@@ -804,9 +809,11 @@ function renderDrawer() {
     const fields = {};
     $$('[data-f]', layer).forEach(el => fields[el.dataset.f] = el.value);
     await busy($('#saveBtn'), async () => {
-      const j = await api('staff.update', { id: p.id, fields });
+      const j = await api('staff.update', { id: p.id, fields, baseUrl: baseUrl() });
       replacePartner(j.partner); renderList(); renderDrawer(); loadActivity(p.id); refreshStats();
-      toast('Saved');
+      if (j.notified) toast('Saved · ' + p.email + ' was emailed what to fix');
+      else if (j.notifyError) toast('Saved, but the rejection email failed: ' + j.notifyError, true);
+      else toast('Saved');
     });
   };
   if (!isTest(p)) $('#archBtn').onclick = async () => {
@@ -1059,16 +1066,17 @@ function openSettings() {
     <div class="mh"><h2>Deadlines</h2><button class="x" data-close>×</button></div>
     <div class="mb">
       <div class="grid2">
-        <div><label class="f">Registration documents due</label><input class="in-f" type="date" id="sReg" value="${esc(S.config.regDeadline)}"></div>
+        <div><label class="f">Submit to GoodPWR Solar by</label><input class="in-f" type="date" id="sReg" value="${esc(S.config.regDeadline)}"></div>
+        <div><label class="f">Illinois Shines registration deadline</label><input class="in-f" type="date" id="sSt" value="${esc(S.config.stateDeadline || '')}"></div>
         <div><label class="f">Training due</label><input class="in-f" type="date" id="sTr" value="${esc(S.config.trainingDeadline)}"></div>
       </div>
-      <p class="muted small" style="margin:12px 0 0">These dates appear on the dashboard, in invite emails and on each partner's upload page.</p>
+      <p class="muted small" style="margin:12px 0 0">These dates appear on the dashboard, in request and reminder emails, and on each partner's upload page. Partners are marked Overdue after the GoodPWR date. Update them each year.</p>
     </div>
     <div class="mf"><button class="btn" data-close>Cancel</button><button class="btn primary" id="sGo">Save</button></div>
   </div>`;
   bindClose();
   $('#sGo').onclick = () => busy($('#sGo'), async () => {
-    const j = await api('staff.settings', { regDeadline: $('#sReg').value, trainingDeadline: $('#sTr').value });
+    const j = await api('staff.settings', { regDeadline: $('#sReg').value, stateDeadline: $('#sSt').value, trainingDeadline: $('#sTr').value });
     S.config = j.config; closeLayer(); renderDash(); toast('Deadlines saved');
   });
 }
@@ -1089,15 +1097,15 @@ async function bootPartner(t) {
 
 function pStatusLine(s, k) {
   if (s === 'verified') return `<div class="locked">✓ Accepted by GoodPWR Solar</div>`;
-  if (s === 'received') return `<div class="small" style="margin-top:8px;color:var(--info);font-weight:600">Received – GoodPWR Solar is reviewing it. You can replace it below if needed.</div>`;
-  if (s === 'rejected') return `<div class="small" style="margin-top:8px;color:var(--bad);font-weight:600">Please upload a new copy${k === 'gs' ? ' (issued within the past 12 months)' : ''}.</div>`;
+  if (s === 'received') return `<div class="small" style="margin-top:8px;color:var(--info);font-weight:600">${k === 'reg' ? 'Confirmed – GoodPWR Solar will check it against your Designee PDF.' : 'Received – GoodPWR Solar is reviewing it. You can replace it below if needed.'}</div>`;
+  if (s === 'rejected') return `<div class="small" style="margin-top:8px;color:var(--bad);font-weight:600">${k === 'reg' ? 'We could not confirm your registration. Make sure you selected GOODPWR LLC (ID 2167), then tick the box again.' : 'Please upload a new copy' + (k === 'gs' ? ' (issued within the past 12 months)' : '') + '.'}</div>`;
   if (s === 'na') return `<div class="small" style="margin-top:8px;color:var(--mute);font-weight:600">Marked as not applicable to your business.</div>`;
   return '';
 }
 
 function renderPartner() {
   const { partner: p, config: cfg, info } = S.pp;
-  const done = ['pdf', 'gs', 'mes', 'training'].filter(k => ['verified', 'received', 'na'].includes(p[k + 'Status'])).length;
+  const done = ['reg', 'pdf', 'gs', 'mes', 'training'].filter(k => ['verified', 'received', 'na'].includes(p[k + 'Status'])).length;
   const drop = (k, accept) => {
     const f = S.pp.files[k];
     return `<div class="drop ${f ? 'has' : ''}">
@@ -1119,20 +1127,24 @@ function renderPartner() {
     <section class="hero">
       <h1>Illinois Shines Designee Registration</h1>
       <div class="co-name">For <b>${esc(p.company)}</b>${p.contact ? ' · ' + esc(p.contact) : ''}</div>
-      <div class="progress"><i style="width:${done * 25}%"></i></div>
-      <div class="small muted">${done} of 4 items submitted</div>
+      <div class="progress"><i style="width:${done * 20}%"></i></div>
+      <div class="small muted">${done} of 5 items submitted · You must be fully compliant before performing Illinois installation work for GoodPWR Solar.</div>
       <div class="pdl">
-        <div class="pill">Registration docs due <b>${fmtDate(cfg.regDeadline)}</b></div>
+        <div class="pill">Submit to GoodPWR by <b>${fmtDate(cfg.regDeadline)}</b></div>
+        <div class="pill">Illinois Shines deadline <b>${fmtDate(cfg.stateDeadline || cfg.regDeadline)}</b></div>
         <div class="pill">Training due <b>${fmtDate(cfg.trainingDeadline)}</b></div>
       </div>
-      ${S.pp.justSent ? `<div class="banner ok"><b>Thank you!</b> We received: ${esc(S.pp.justSent.join(', '))}.${done < 4 ? ' Please come back to this page to send the remaining items.' : ' GoodPWR Solar will review your documents.'}</div>` : ''}
+      ${S.pp.justSent ? `<div class="banner ok"><b>Thank you!</b> We received: ${esc(S.pp.justSent.join(', '))}.${done < 5 ? ' Please come back to this page to send the remaining items.' : ' GoodPWR Solar will review your documents.'}</div>` : ''}
       ${p.partnerMessage ? `<div class="banner msg"><b>Message from GoodPWR Solar:</b> ${esc(p.partnerMessage)}</div>` : ''}
     </section>
 
-    <div class="card step-card ${isDone('pdf') ? 'done' : ''}">
+    <div class="card step-card ${isDone('reg') ? 'done' : ''}">
       <div class="step-head"><h2><span class="num">1</span>Register online with Illinois Shines</h2></div>
       <p>Sign the Illinois Shines Designee Registration Form online. Select <b>${esc(info.avName)}</b> (Approved Vendor ID <b>${esc(info.avId)}</b>) as your Approved Vendor.</p>
       <p style="margin-top:12px"><a class="btn primary" href="${esc(info.officialUrl)}" target="_blank" rel="noopener">Open the Illinois Shines form ↗</a></p>
+      ${pStatusLine(p.regStatus, 'reg')}
+      ${['missing', 'rejected', ''].includes(p.regStatus || 'missing') ? `
+        <label class="check"><input type="checkbox" id="regDone" ${S.pp.regDone ? 'checked' : ''}><span>We registered online and selected ${esc(info.avName)} (ID ${esc(info.avId)}) as our Approved Vendor.</span></label>` : ''}
     </div>
 
     <div class="card step-card ${isDone('pdf') ? 'done' : ''}">
@@ -1181,17 +1193,18 @@ function renderPartner() {
     if ($('#trDone')) S.pp.trDone = $('#trDone').checked;
     if ($('#trDate')) S.pp.trDate = $('#trDate').value;
     if ($('#mesNA')) S.pp.mesNA = $('#mesNA').checked;
+    if ($('#regDone')) S.pp.regDone = $('#regDone').checked;
   };
   $$('[data-pf]').forEach(inp => inp.onchange = () => {
     const f = inp.files[0]; if (!f) return;
     if (f.size > info.maxMb * 1024 * 1024) { toast(`${f.name} is larger than ${info.maxMb} MB.`, true); return; }
     if (inp.dataset.pf === 'pdf' && !/\.pdf$/i.test(f.name)) { toast('Please upload the form as a PDF.', true); return; }
     keep(); S.pp.files[inp.dataset.pf] = f;
-    if (inp.dataset.pf === 'mes') S.pp.mesNA = false;
+    if (inp.dataset.pf === 'mes') S.pp.mesNA = false; S.pp.regDone = false;
     renderPartner();
   });
   if ($('#mesNA')) $('#mesNA').onchange = e => { keep(); if (e.target.checked) delete S.pp.files.mes; renderPartner(); };
-  ['#gsDate', '#trDate', '#trDone'].forEach(s => { if ($(s)) $(s).onchange = keep; });
+  ['#gsDate', '#trDate', '#trDone', '#regDone'].forEach(s => { if ($(s)) $(s).onchange = keep; });
   $('#pSubmit').onclick = submitPartner;
 }
 
@@ -1201,12 +1214,13 @@ async function submitPartner() {
   const trainingDone = $('#trDone') ? $('#trDone').checked : false;
   const trainingDate = $('#trDate') ? $('#trDate').value : '';
   const mesNA = $('#mesNA') ? $('#mesNA').checked : false;
+  const regDone = $('#regDone') ? $('#regDone').checked : false;
   if (st.files.gs) {
     if (!gsDate) return toast('Enter the date your Good Standing statement was issued.', true);
     if (gsDate < yearAgo()) return toast('The Good Standing statement must be issued within the past 12 months.', true);
   }
   if (st.files.training && !trainingDone) return toast('Check the training box to confirm you completed all modules.', true);
-  const hasAny = Object.keys(st.files).length || mesNA || trainingDone;
+  const hasAny = Object.keys(st.files).length || mesNA || trainingDone || regDone;
   if (!hasAny) return toast('Add at least one document or check a box before submitting.', true);
 
   const btn = $('#pSubmit');
@@ -1214,7 +1228,7 @@ async function submitPartner() {
     btn.innerHTML = '<span class="spin"></span>&nbsp; Uploading…';
     const files = {};
     for (const k of Object.keys(st.files)) files[k] = await readFile(st.files[k], info.maxMb);
-    const j = await api('partner.submit', { t: st.t, files, gsDate, mesNA, trainingDone, trainingDate });
+    const j = await api('partner.submit', { t: st.t, files, gsDate, mesNA, trainingDone, trainingDate, regDone });
     S.pp.partner = j.partner; S.pp.files = {}; S.pp.justSent = j.received;
     S.pp.gsDate = ''; S.pp.trDone = false; S.pp.trDate = ''; S.pp.mesNA = false;
     renderPartner(); window.scrollTo({ top: 0, behavior: 'smooth' });
